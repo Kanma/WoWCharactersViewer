@@ -1,0 +1,3 @@
+[submodule "battlenet"]
+	path = battlenet
+	url = git@github.com:PuckCh/battlenet.git

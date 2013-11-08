@@ -1,0 +1,327 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="./css/style.css" />
+
+    <script src="./js/jquery.js" type="text/javascript"></script>
+    <script type="text/javascript" src="http://static.wowhead.com/widgets/power.js"></script>
+
+    <script type="text/javascript">
+
+        // Colors from http://www.wowwiki.com/Class_colors
+        var CLASS_COLORS = {
+            'Death Knight': '#C41F3B',
+            'Druid':        '#FF7D0A',
+            'Hunter':       '#ABD473',
+            'Mage':         '#69CCF0',
+            'Monk':         '#558A84',
+            'Paladin':      '#F58CBA',
+            'Priest':       '#FFFFFF',
+            'Rogue':        '#FFF569',
+            'Shaman':       '#0070DE',
+            'Warlock':      '#9482C9',
+            'Warrior':      '#C79C6E',
+        };
+
+        var DEFAULT_CLASS_COLOR = '#808080';
+
+        var QUALITY_COLORS = {
+            'Common':    '#FFFFFF',
+            'Uncommon':  '#1EFF00',
+            'Rare':      '#0070FF',
+            'Epic':      '#A335EE',
+            'Legendary': '#FF8000',
+            'Heirloom':  '#E6CC80',
+        };
+
+        var DEFAULT_QUALITY_COLOR = '#9D9D9D';
+
+
+        function getClassColor(name)
+        {
+            if (CLASS_COLORS[name] !== undefined)
+                return CLASS_COLORS[name];
+
+            return DEFAULT_CLASS_COLOR;
+        }
+
+
+        function getQualityColor(name)
+        {
+            if (QUALITY_COLORS[name] !== undefined)
+                return QUALITY_COLORS[name];
+
+            return DEFAULT_QUALITY_COLOR;
+        }
+
+
+        function processEquipmentOverview(data, table_id)
+        {
+            var parent = $('#' + table_id + ' tbody')[0];
+
+            for (var i = 0; i < data.characters.length; ++i)
+            {
+                var character = data.characters[i];
+
+                var tr = document.createElement('tr');
+                parent.appendChild(tr);
+
+                var td = document.createElement('td');
+                tr.appendChild(td);
+
+                var a = document.createElement('a');
+                a.href = character.armory_url;
+                a.textContent = character.name;
+                a.style.color = getClassColor(character.class);
+                td.appendChild(a);
+
+                td = document.createElement('td');
+                td.className = 'centered';
+                td.textContent = character.current_ilvl;
+                tr.appendChild(td);
+
+                td = document.createElement('td');
+                td.className = 'centered';
+                tr.appendChild(td);
+
+                span = document.createElement('span');
+                span.className = 'progressbar';
+                $(span).html('&nbsp;');
+
+                if (character.max_ilvl >= 450)
+                {
+                    if (character.max_ilvl < 600)
+                    {
+                        span.style.width = '' + (character.max_ilvl - 450) * 2 + 'px';
+                    }
+                    else
+                    {
+                        span.style.width = '300px';
+                        span.className += ' full';
+                    }
+
+                    if (character.max_ilvl < 500)
+                        span.className += ' common';
+                    else if (character.max_ilvl < 510)
+                        span.className += ' uncommon';
+                    else if (character.max_ilvl < 520)
+                        span.className += ' rare';
+                    else if (character.max_ilvl < 530)
+                        span.className += ' epic';
+                    else
+                        span.className += ' legendary';
+                }
+                else
+                {
+                    span.style.width = '0px';
+                }
+
+                td.appendChild(span);
+
+                span = document.createElement('span');
+                span.className = 'progressbar_background';
+                $(span).html('&nbsp;');
+
+                if (character.max_ilvl >= 450)
+                {
+                    span.style.width = '' + (600 - character.max_ilvl) * 2 + 'px';
+                }
+                else
+                {
+                    span.style.width = '300px';
+                    span.className += ' full';
+                }
+
+                td.appendChild(span);
+
+                span = document.createElement('span');
+                span.textContent = character.max_ilvl;
+                td.appendChild(span);
+
+                td = document.createElement('td');
+                td.className = 'role';
+                tr.appendChild(td);
+
+                img = document.createElement('img');
+                img.src = character.spec_icon;
+                td.appendChild(img);
+
+                span = document.createElement('span');
+                span.textContent = character.role;
+                td.appendChild(span);
+            }
+
+            $('#' + table_id + '-progress').hide();
+            $('#' + table_id).show();
+        }
+
+
+        function processEquipment(data, table_id)
+        {
+            function _processSlot(slot, character)
+            {
+                var row = $('#' + table_id + ' tr[name=' + slot + ']')[0];
+
+                var td = document.createElement('td');
+                row.appendChild(td);
+
+                if (character.items[slot] !== null)
+                {
+                    var span = document.createElement('span');
+                    span.className = 'level';
+                    span.textContent = '(' + character.items[slot].level + ')';
+                    td.appendChild(span);
+
+                    if (character.items[slot].level < character.current_ilvl - 10)
+                        span.className += ' below';
+                    else if (character.items[slot].level > character.current_ilvl + 10)
+                        span.className += ' above';
+
+                    var img = document.createElement('img');
+                    img.src = character.items[slot].icon;
+                    td.appendChild(img);
+
+                    var a = document.createElement('a');
+                    a.href = 'http://' + data.locale + '.wowhead.com/item=' + character.items[slot].id;
+                    a.textContent = character.items[slot].name;
+                    a.style.color = getQualityColor(character.items[slot].quality);
+                    td.appendChild(a);
+                }
+                else
+                {
+                    td.textContent = '-';
+                }
+            }
+
+
+            var header_row = $('#' + table_id + ' tr[name=characters]')[0];
+
+            for (var i = 0; i < data.characters.length; ++i)
+            {
+                var character = data.characters[i];
+
+                var th = document.createElement('th');
+                header_row.appendChild(th);
+
+                var a = document.createElement('a');
+                a.href = character.armory_url;
+                a.textContent = character.name;
+                a.style.color = getClassColor(character.class);
+                th.appendChild(a);
+
+                _processSlot('main_hand', character);
+                _processSlot('off_hand', character);
+                _processSlot('head', character);
+                _processSlot('neck', character);
+                _processSlot('shoulder', character);
+                _processSlot('back', character);
+                _processSlot('chest', character);
+                _processSlot('wrist', character);
+                _processSlot('hands', character);
+                _processSlot('waist', character);
+                _processSlot('legs', character);
+                _processSlot('feet', character);
+                _processSlot('finger1', character);
+                _processSlot('finger2', character);
+                _processSlot('trinket1', character);
+                _processSlot('trinket2', character);
+            }
+
+            $('#' + table_id + '-progress').hide();
+            $('#' + table_id).show();
+        }
+
+        </script>
+</head>
+<body>
+
+    <h1>Characters</h1>
+
+    <img id="characters-progress" src="images/progress.gif" />
+
+    <table id="characters" cellspacing="0" cellpadding="0" style="display: none;">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>iLevel</th>
+                <th>Max iLevel</th>
+                <th>Role</th>
+            </td>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+
+    <h1>Equipment</h1>
+
+    <img id="equipment-progress" src="images/progress.gif" />
+
+    <table id="equipment" class="equipment" cellspacing="0" cellpadding="0" style="display: none;">
+        <thead>
+            <tr name="characters">
+                <th class="slot"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr name="main_hand">
+                <td>Main hand</td>
+            </tr>
+            <tr name="off_hand">
+                <td>Off hand</td>
+            </tr>
+            <tr name="head">
+                <td>Head</td>
+            </tr>
+            <tr name="neck">
+                <td>Neck</td>
+            </tr>
+            <tr name="shoulder">
+                <td>Shoulder</td>
+            </tr>
+            <tr name="back">
+                <td>Back</td>
+            </tr>
+            <tr name="chest">
+                <td>Chest</td>
+            </tr>
+            <tr name="wrist">
+                <td>Wrist</td>
+            </tr>
+            <tr name="hands">
+                <td>Hands</td>
+            </tr>
+            <tr name="waist">
+                <td>Waist</td>
+            </tr>
+            <tr name="legs">
+                <td>Legs</td>
+            </tr>
+            <tr name="feet">
+                <td>Feet</td>
+            </tr>
+            <tr name="finger1">
+                <td>Finger 1</td>
+            </tr>
+            <tr name="finger2">
+                <td>Finger 2</td>
+            </tr>
+            <tr name="trinket1">
+                <td>Trinket 1</td>
+            </tr>
+            <tr name="trinket2">
+                <td>Trinket 2</td>
+            </tr>
+        </tbody>
+    </table>
+
+
+    <script type="text/javascript">
+        window.onload = function ()
+        {
+            $.get('data.json', function(data) {
+                processEquipmentOverview(data, 'characters');
+                processEquipment(data, 'equipment');
+            });
+        }
+    </script>
+</html>

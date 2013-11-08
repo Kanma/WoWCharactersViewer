@@ -496,6 +496,10 @@
         window.onload = function ()
         {
             $.get('data.json', function(data) {
+                // By security, in case the server doesn't return the correct mime type
+                if (typeof(data) == "string")
+                    data = JSON.parse(data);
+
                 processEquipmentOverview(data, 'characters');
                 processEquipment(data, 'equipment');
                 processModifications(data, 'modifications');

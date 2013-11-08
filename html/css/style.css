@@ -23,7 +23,6 @@ table
 table.equipment
 {
     font-size: 0.9em;
-    overflow: hidden;
     table-layout: fixed;
     white-space: nowrap;
     width: 100%;

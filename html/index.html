@@ -324,6 +324,7 @@
         window.onload = function ()
         {
             $.get('data.json', function(data) {
+                if (typeof(data) == 'string') data = JSON.parse(data);
                 processEquipmentOverview(data, 'characters');
                 processEquipment(data, 'equipment');
             });

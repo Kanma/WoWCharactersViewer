@@ -14,9 +14,14 @@ $ git submodule update`
 
 ## Execution
 
-Usage: `./process.py [<dest_folder>]`
+Usage: `./process.py [--data <path>] [<dest_folder>]`
 
 The default value for *dest_folder* is `./html`.
+
+The (optional) *--data* option is used to indicates the folder where the game add-ons
+saves their data (for instance, on OS X:
+/Applications/World\ of\ Warcraft/WTF/Account/<username>/). The script will look there if
+there is some data produced by the AskMrRobot add-on.
 
 It will produce a JSON file (*data.json*) in *dest_folder*.
 

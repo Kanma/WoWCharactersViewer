@@ -230,6 +230,115 @@
             $('#' + table_id).show();
         }
 
+
+        function processModifications(data, table_id)
+        {
+            function _processSlot(slot, character)
+            {
+                var row = $('#' + table_id + ' tr[name=' + slot + ']')[0];
+
+                var td = document.createElement('td');
+                row.appendChild(td);
+
+                if (character.valid_modifications)
+                {
+                    if (character.modifications[slot])
+                    {
+                        var ul = document.createElement('ul');
+                        td.appendChild(ul);
+
+                        if (character.modifications[slot].gems !== null)
+                        {
+                            for (var i = 0; i < character.modifications[slot].gems.length; ++i)
+                            {
+                                if (character.modifications[slot].gems[i])
+                                {
+                                    var li = document.createElement('li');
+                                    li.className = 'gem';
+                                    ul.appendChild(li);
+
+                                    var gem = data.items['' + character.modifications[slot].gems[i]];
+                                    if (gem)
+                                    {
+                                        var img = document.createElement('img');
+                                        img.src = "http://eu.media.blizzard.com/wow/icons/18/" + gem.icon + '.jpg';
+                                        li.appendChild(img);
+                                
+                                        var a = document.createElement('a');
+                                        a.href = 'http://' + data.locale + '.wowhead.com/item=' + gem.id;
+                                        a.textContent = gem.name;
+                                        a.style.color = getQualityColor(Object.keys(QUALITY_COLORS)[gem.quality - 1]);
+                                        li.appendChild(a);
+                                    }
+                                    else
+                                    {
+                                        li.textContent = 'Unknown (' + character.modifications[slot].gems[i] + ')';
+                                    }
+                                }
+                            }
+                        }
+
+                        if (character.modifications[slot].enchant !== null)
+                        {
+                            var li = document.createElement('li');
+                            li.className = 'enchant';
+                            li.textContent = character.modifications[slot].enchant;
+                            ul.appendChild(li);
+                        }
+
+                        if (character.modifications[slot].reforge !== null)
+                        {
+                            var li = document.createElement('li');
+                            li.className = 'reforge';
+                            li.textContent = character.modifications[slot].reforge;
+                            ul.appendChild(li);
+                        }
+                    }
+                }
+                else
+                {
+                    td.style.backgroundColor = '#777777';
+                }
+            }
+
+
+            var header_row = $('#' + table_id + ' tr[name=characters]')[0];
+
+            for (var i = 0; i < data.characters.length; ++i)
+            {
+                var character = data.characters[i];
+
+                var th = document.createElement('th');
+                header_row.appendChild(th);
+
+                var a = document.createElement('a');
+                a.href = character.armory_url;
+                a.textContent = character.name;
+                a.style.color = getClassColor(character.class);
+                th.appendChild(a);
+
+                _processSlot('main_hand', character);
+                _processSlot('off_hand', character);
+                _processSlot('head', character);
+                _processSlot('neck', character);
+                _processSlot('shoulder', character);
+                _processSlot('back', character);
+                _processSlot('chest', character);
+                _processSlot('wrist', character);
+                _processSlot('hands', character);
+                _processSlot('waist', character);
+                _processSlot('legs', character);
+                _processSlot('feet', character);
+                _processSlot('finger1', character);
+                _processSlot('finger2', character);
+                _processSlot('trinket1', character);
+                _processSlot('trinket2', character);
+            }
+
+            $('#' + table_id + '-progress').hide();
+            $('#' + table_id).show();
+        }
+
         </script>
 </head>
 <body>
@@ -320,12 +429,76 @@
     </table>
 
 
+    <h1>Modifications</h1>
+
+    <img id="modifications-progress" src="images/progress.gif" />
+
+    <table id="modifications" class="modifications" cellspacing="0" cellpadding="0" style="display: none;">
+        <thead>
+            <tr name="characters">
+                <th class="slot"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr name="main_hand">
+                <td>Main hand</td>
+            </tr>
+            <tr name="off_hand">
+                <td>Off hand</td>
+            </tr>
+            <tr name="head">
+                <td>Head</td>
+            </tr>
+            <tr name="neck">
+                <td>Neck</td>
+            </tr>
+            <tr name="shoulder">
+                <td>Shoulder</td>
+            </tr>
+            <tr name="back">
+                <td>Back</td>
+            </tr>
+            <tr name="chest">
+                <td>Chest</td>
+            </tr>
+            <tr name="wrist">
+                <td>Wrist</td>
+            </tr>
+            <tr name="hands">
+                <td>Hands</td>
+            </tr>
+            <tr name="waist">
+                <td>Waist</td>
+            </tr>
+            <tr name="legs">
+                <td>Legs</td>
+            </tr>
+            <tr name="feet">
+                <td>Feet</td>
+            </tr>
+            <tr name="finger1">
+                <td>Finger 1</td>
+            </tr>
+            <tr name="finger2">
+                <td>Finger 2</td>
+            </tr>
+            <tr name="trinket1">
+                <td>Trinket 1</td>
+            </tr>
+            <tr name="trinket2">
+                <td>Trinket 2</td>
+            </tr>
+        </tbody>
+    </table>
+
+
     <script type="text/javascript">
         window.onload = function ()
         {
             $.get('data.json', function(data) {
                 processEquipmentOverview(data, 'characters');
                 processEquipment(data, 'equipment');
+                processModifications(data, 'modifications');
             });
         }
     </script>

@@ -30,6 +30,13 @@ table.equipment
 }
 
 
+table.modifications
+{
+    font-size: 0.9em;
+    width: 100%;
+}
+
+
 td,
 th
 {
@@ -141,7 +148,8 @@ span.progressbar.legendary
 
 
 td.role img,
-table.equipment td img
+table.equipment td img,
+table.modifications td li img
 {
     margin-right: 4px;
     vertical-align: middle;
@@ -150,7 +158,8 @@ table.equipment td img
 
 td.role span,
 table.equipment td span,
-table.equipment td a
+table.equipment td a,
+table.modifications td li a
 {
     vertical-align: middle;
 }
@@ -173,4 +182,18 @@ table.equipment td span.level.below
 table.equipment td span.level.above
 {
     color: #8A2BE2;
+}
+
+
+table.modifications td ul
+{
+    list-style: circle outside none;
+    margin-bottom: 0;
+    padding-left: 20px;
+}
+
+
+table.modifications td li
+{
+    margin-bottom: 2px;
 }

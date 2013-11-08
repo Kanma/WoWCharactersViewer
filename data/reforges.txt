@@ -1,0 +1,56 @@
+113,Spirit,Dodge Rating
+114,Spirit,Parry Rating
+115,Spirit,Hit Rating
+116,Spirit,Crit Rating
+117,Spirit,Haste Rating
+118,Spirit,Expertise Rating
+119,Spirit,Mastery
+120,Dodge Rating,Spirit
+121,Dodge Rating,Parry Rating
+122,Dodge Rating,Hit Rating
+123,Dodge Rating,Crit Rating
+124,Dodge Rating,Haste Rating
+125,Dodge Rating,Expertise Rating
+126,Dodge Rating,Mastery
+127,Parry Rating,Spirit
+128,Parry Rating,Dodge Rating
+129,Parry Rating,Hit Rating
+130,Parry Rating,Crit Rating
+131,Parry Rating,Haste Rating
+132,Parry Rating,Expertise Rating
+133,Parry Rating,Mastery
+134,Hit Rating,Spirit
+135,Hit Rating,Dodge Rating
+136,Hit Rating,Parry Rating
+137,Hit Rating,Crit Rating
+138,Hit Rating,Haste Rating
+139,Hit Rating,Expertise Rating
+140,Hit Rating,Mastery
+141,Crit Rating,Spirit
+142,Crit Rating,Dodge Rating
+143,Crit Rating,Parry Rating
+144,Crit Rating,Hit Rating
+145,Crit Rating,Haste Rating
+146,Crit Rating,Expertise Rating
+147,Crit Rating,Mastery
+148,Haste Rating,Spirit
+149,Haste Rating,Dodge Rating
+150,Haste Rating,Parry Rating
+151,Haste Rating,Hit Rating
+152,Haste Rating,Crit Rating
+153,Haste Rating,Expertise Rating
+154,Haste Rating,Mastery
+155,Expertise Rating,Spirit
+156,Expertise Rating,Dodge Rating
+157,Expertise Rating,Parry Rating
+158,Expertise Rating,Hit Rating
+159,Expertise Rating,Crit Rating
+160,Expertise Rating,Haste Rating
+161,Expertise Rating,Mastery
+162,Mastery,Spirit
+163,Mastery,Dodge Rating
+164,Mastery,Parry Rating
+165,Mastery,Hit Rating
+166,Mastery,Crit Rating
+167,Mastery,Haste Rating
+168,Mastery,Expertise Rating

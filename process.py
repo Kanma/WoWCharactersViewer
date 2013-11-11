@@ -14,6 +14,7 @@ def item2json(item):
         'name': item.name,
         'quality': item.get_quality_name(),
         'level': item.itemLevel,
+        'upgrade': item.upgrade if item.upgradable else {},
         'icon': item.get_icon_url(size='small'),
     }
 

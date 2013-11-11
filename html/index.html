@@ -401,6 +401,21 @@
                     span.textContent = spec.role;
                     th.appendChild(span);
 
+                    if (spec.amr_import_string)
+                    {
+                        var img = document.createElement('img');
+                        img.className = 'download';
+                        img.src = 'images/download.png';
+                        img.title = 'Display the AMR import string';
+                        img.amr_import_string = spec.amr_import_string;
+                        th.appendChild(img);
+
+                        $(img).click(function(event)
+                            {
+                                alert(event.target.amr_import_string);
+                            });
+                    }
+
                     _processSlot('main_hand', spec);
                     _processSlot('off_hand', spec);
                     _processSlot('head', spec);

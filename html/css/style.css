@@ -165,6 +165,12 @@ table.modifications th img
 }
 
 
+table.modifications th img.download
+{
+    cursor: pointer;
+}
+
+
 td.role span,
 table.equipment th a,
 table.equipment th span

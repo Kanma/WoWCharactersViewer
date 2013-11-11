@@ -186,6 +186,7 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
                 'items': {},
                 'modifications': {},
                 'valid_modifications': True,
+                'amr_import_string': None,
             }
 
             json_character['specs'].append(json_spec)
@@ -213,6 +214,7 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
                 'items': {},
                 'modifications': {},
                 'valid_modifications': True,
+                'amr_import_string': None,
             }
 
             json_character['specs'].append(json_spec)
@@ -264,7 +266,11 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
 
             import_data = filter(lambda x: x.startswith('AmrImportString = '), lines)
             if len(import_data) == 1:
-                parsed_items = filter(lambda x: x.startswith('item='), import_data[0].split(';'))
+                import_data = import_data[0].strip()[19:-1]
+
+                json_spec['amr_import_string'] = import_data
+
+                parsed_items = filter(lambda x: x.startswith('item='), import_data.split(';'))
                 for item in parsed_items:
                     parts = item.split(':')
                     slot = int(parts[0][5:])

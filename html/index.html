@@ -183,6 +183,19 @@
                         span.className += ' above';
 
                     var img = document.createElement('img');
+                    if (spec.items[slot].upgrade !== null
+                        && spec.items[slot].upgrade['current'] < spec.items[slot].upgrade['total'])
+                    {
+                        img.src = 'images/up-circular-32.png';
+                    }
+                    else
+                    {
+                        img.src = 'images/blank.png';
+                    }
+                    img.width = 12;
+                    td.appendChild(img);
+
+                    var img = document.createElement('img');
                     img.src = spec.items[slot].icon;
                     td.appendChild(img);
 

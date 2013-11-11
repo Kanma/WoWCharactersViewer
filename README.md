@@ -28,10 +28,10 @@ It will produce a JSON file (*data.json*) in *dest_folder*.
 The *process.py* script needs a file called *settings.py* that contains informations about
 the characters you want to display. Here is an example one:
 
-`# List of all the characters to retrieve, format: (region, server, character)
+`# List of all the characters to retrieve, format: (region, server, character, specs)
 CHARACTER_NAMES = [
-    ('eu', 'Khaz Modan', 'SomeCharacter'),
-    ('eu', 'Khaz Modan', 'AnotherCharacter'),
+    ('eu', 'Khaz Modan', 'SomeCharacter', ['Protection', 'Arms']),
+    ('eu', 'Khaz Modan', 'AnotherCharacter', ['Fire']),
 ]`
 
 

@@ -62,36 +62,85 @@
             {
                 var character = data.characters[i];
 
-                var tr = document.createElement('tr');
-                parent.appendChild(tr);
-
-                var td = document.createElement('td');
-                tr.appendChild(td);
-
-                var a = document.createElement('a');
-                a.href = character.armory_url;
-                a.textContent = character.name;
-                a.style.color = getClassColor(character.class);
-                td.appendChild(a);
-
-                td = document.createElement('td');
-                td.className = 'centered';
-                td.textContent = character.current_ilvl;
-                tr.appendChild(td);
-
-                td = document.createElement('td');
-                td.className = 'centered';
-                tr.appendChild(td);
-
-                span = document.createElement('span');
-                span.className = 'progressbar';
-                $(span).html('&nbsp;');
-
-                if (character.max_ilvl >= 450)
+                for (var j = 0; j < character.specs.length; ++j)
                 {
-                    if (character.max_ilvl < 600)
+                    var spec = character.specs[j];
+
+                    if (spec.ilvl == null)
+                        continue;
+
+                    var tr = document.createElement('tr');
+                    parent.appendChild(tr);
+
+                    // Name
+                    var td = document.createElement('td');
+                    tr.appendChild(td);
+
+                    var a = document.createElement('a');
+                    a.href = character.armory_url;
+                    a.textContent = character.name;
+                    a.style.color = getClassColor(character.class);
+                    td.appendChild(a);
+
+                    // Role
+                    td = document.createElement('td');
+                    td.className = 'role';
+                    tr.appendChild(td);
+
+                    img = document.createElement('img');
+                    img.src = spec.icon;
+                    td.appendChild(img);
+
+                    span = document.createElement('span');
+                    span.textContent = spec.role;
+                    td.appendChild(span);
+
+                    // iLevel
+                    td = document.createElement('td');
+                    td.className = 'centered';
+                    tr.appendChild(td);
+
+                    span = document.createElement('span');
+                    span.className = 'progressbar';
+                    $(span).html('&nbsp;');
+
+                    if (spec.ilvl >= 450)
                     {
-                        span.style.width = '' + (character.max_ilvl - 450) * 2 + 'px';
+                        if (spec.ilvl < 600)
+                        {
+                            span.style.width = '' + (spec.ilvl - 450) * 2 + 'px';
+                        }
+                        else
+                        {
+                            span.style.width = '300px';
+                            span.className += ' full';
+                        }
+
+                        if (spec.ilvl < 500)
+                            span.className += ' common';
+                        else if (spec.ilvl < 510)
+                            span.className += ' uncommon';
+                        else if (spec.ilvl < 520)
+                            span.className += ' rare';
+                        else if (spec.ilvl < 530)
+                            span.className += ' epic';
+                        else
+                            span.className += ' legendary';
+                    }
+                    else
+                    {
+                        span.style.width = '0px';
+                    }
+
+                    td.appendChild(span);
+
+                    span = document.createElement('span');
+                    span.className = 'progressbar_background';
+                    $(span).html('&nbsp;');
+
+                    if (spec.ilvl >= 450)
+                    {
+                        span.style.width = '' + (600 - spec.ilvl) * 2 + 'px';
                     }
                     else
                     {
@@ -99,55 +148,12 @@
                         span.className += ' full';
                     }
 
-                    if (character.max_ilvl < 500)
-                        span.className += ' common';
-                    else if (character.max_ilvl < 510)
-                        span.className += ' uncommon';
-                    else if (character.max_ilvl < 520)
-                        span.className += ' rare';
-                    else if (character.max_ilvl < 530)
-                        span.className += ' epic';
-                    else
-                        span.className += ' legendary';
+                    td.appendChild(span);
+
+                    span = document.createElement('span');
+                    span.textContent = spec.ilvl;
+                    td.appendChild(span);
                 }
-                else
-                {
-                    span.style.width = '0px';
-                }
-
-                td.appendChild(span);
-
-                span = document.createElement('span');
-                span.className = 'progressbar_background';
-                $(span).html('&nbsp;');
-
-                if (character.max_ilvl >= 450)
-                {
-                    span.style.width = '' + (600 - character.max_ilvl) * 2 + 'px';
-                }
-                else
-                {
-                    span.style.width = '300px';
-                    span.className += ' full';
-                }
-
-                td.appendChild(span);
-
-                span = document.createElement('span');
-                span.textContent = character.max_ilvl;
-                td.appendChild(span);
-
-                td = document.createElement('td');
-                td.className = 'role';
-                tr.appendChild(td);
-
-                img = document.createElement('img');
-                img.src = character.spec_icon;
-                td.appendChild(img);
-
-                span = document.createElement('span');
-                span.textContent = character.role;
-                td.appendChild(span);
             }
 
             $('#' + table_id + '-progress').hide();
@@ -157,33 +163,33 @@
 
         function processEquipment(data, table_id)
         {
-            function _processSlot(slot, character)
+            function _processSlot(slot, spec)
             {
                 var row = $('#' + table_id + ' tr[name=' + slot + ']')[0];
 
                 var td = document.createElement('td');
                 row.appendChild(td);
 
-                if (character.items[slot] !== null)
+                if (spec.items[slot] !== null)
                 {
                     var span = document.createElement('span');
                     span.className = 'level';
-                    span.textContent = '(' + character.items[slot].level + ')';
+                    span.textContent = '(' + spec.items[slot].level + ')';
                     td.appendChild(span);
 
-                    if (character.items[slot].level < character.current_ilvl - 10)
+                    if (spec.items[slot].level < spec.ilvl - 10)
                         span.className += ' below';
-                    else if (character.items[slot].level > character.current_ilvl + 10)
+                    else if (spec.items[slot].level > spec.ilvl + 10)
                         span.className += ' above';
 
                     var img = document.createElement('img');
-                    img.src = character.items[slot].icon;
+                    img.src = spec.items[slot].icon;
                     td.appendChild(img);
 
                     var a = document.createElement('a');
-                    a.href = 'http://' + data.locale + '.wowhead.com/item=' + character.items[slot].id;
-                    a.textContent = character.items[slot].name;
-                    a.style.color = getQualityColor(character.items[slot].quality);
+                    a.href = 'http://' + data.locale + '.wowhead.com/item=' + spec.items[slot].id;
+                    a.textContent = spec.items[slot].name;
+                    a.style.color = getQualityColor(spec.items[slot].quality);
                     td.appendChild(a);
                 }
                 else
@@ -199,31 +205,47 @@
             {
                 var character = data.characters[i];
 
-                var th = document.createElement('th');
-                header_row.appendChild(th);
+                for (var j = 0; j < character.specs.length; ++j)
+                {
+                    var spec = character.specs[j];
 
-                var a = document.createElement('a');
-                a.href = character.armory_url;
-                a.textContent = character.name;
-                a.style.color = getClassColor(character.class);
-                th.appendChild(a);
+                    if (spec.ilvl == null)
+                        continue;
 
-                _processSlot('main_hand', character);
-                _processSlot('off_hand', character);
-                _processSlot('head', character);
-                _processSlot('neck', character);
-                _processSlot('shoulder', character);
-                _processSlot('back', character);
-                _processSlot('chest', character);
-                _processSlot('wrist', character);
-                _processSlot('hands', character);
-                _processSlot('waist', character);
-                _processSlot('legs', character);
-                _processSlot('feet', character);
-                _processSlot('finger1', character);
-                _processSlot('finger2', character);
-                _processSlot('trinket1', character);
-                _processSlot('trinket2', character);
+                    var th = document.createElement('th');
+                    header_row.appendChild(th);
+
+                    var a = document.createElement('a');
+                    a.href = character.armory_url;
+                    a.textContent = character.name;
+                    a.style.color = getClassColor(character.class);
+                    th.appendChild(a);
+
+                    img = document.createElement('img');
+                    img.src = spec.icon;
+                    th.appendChild(img);
+
+                    span = document.createElement('span');
+                    span.textContent = spec.role;
+                    th.appendChild(span);
+
+                    _processSlot('main_hand', spec);
+                    _processSlot('off_hand', spec);
+                    _processSlot('head', spec);
+                    _processSlot('neck', spec);
+                    _processSlot('shoulder', spec);
+                    _processSlot('back', spec);
+                    _processSlot('chest', spec);
+                    _processSlot('wrist', spec);
+                    _processSlot('hands', spec);
+                    _processSlot('waist', spec);
+                    _processSlot('legs', spec);
+                    _processSlot('feet', spec);
+                    _processSlot('finger1', spec);
+                    _processSlot('finger2', spec);
+                    _processSlot('trinket1', spec);
+                    _processSlot('trinket2', spec);
+                }
             }
 
             $('#' + table_id + '-progress').hide();
@@ -233,31 +255,31 @@
 
         function processModifications(data, table_id)
         {
-            function _processSlot(slot, character)
+            function _processSlot(slot, spec)
             {
                 var row = $('#' + table_id + ' tr[name=' + slot + ']')[0];
 
                 var td = document.createElement('td');
                 row.appendChild(td);
 
-                if (character.valid_modifications)
+                if (spec.valid_modifications)
                 {
-                    if (character.modifications[slot])
+                    if (spec.modifications[slot])
                     {
                         var ul = document.createElement('ul');
                         td.appendChild(ul);
 
-                        if (character.modifications[slot].gems !== null)
+                        if (spec.modifications[slot].gems !== null)
                         {
-                            for (var i = 0; i < character.modifications[slot].gems.length; ++i)
+                            for (var i = 0; i < spec.modifications[slot].gems.length; ++i)
                             {
-                                if (character.modifications[slot].gems[i])
+                                if (spec.modifications[slot].gems[i])
                                 {
                                     var li = document.createElement('li');
                                     li.className = 'gem';
                                     ul.appendChild(li);
 
-                                    var gem = data.items['' + character.modifications[slot].gems[i]];
+                                    var gem = data.items['' + spec.modifications[slot].gems[i]];
                                     if (gem)
                                     {
                                         var img = document.createElement('img');
@@ -272,25 +294,25 @@
                                     }
                                     else
                                     {
-                                        li.textContent = 'Unknown (' + character.modifications[slot].gems[i] + ')';
+                                        li.textContent = 'Unknown (' + spec.modifications[slot].gems[i] + ')';
                                     }
                                 }
                             }
                         }
 
-                        if (character.modifications[slot].enchant !== null)
+                        if (spec.modifications[slot].enchant !== null)
                         {
                             var li = document.createElement('li');
                             li.className = 'enchant';
-                            li.textContent = character.modifications[slot].enchant;
+                            li.textContent = spec.modifications[slot].enchant;
                             ul.appendChild(li);
                         }
 
-                        if (character.modifications[slot].reforge !== null)
+                        if (spec.modifications[slot].reforge !== null)
                         {
                             var li = document.createElement('li');
                             li.className = 'reforge';
-                            li.textContent = character.modifications[slot].reforge;
+                            li.textContent = spec.modifications[slot].reforge;
                             ul.appendChild(li);
                         }
                     }
@@ -308,31 +330,47 @@
             {
                 var character = data.characters[i];
 
-                var th = document.createElement('th');
-                header_row.appendChild(th);
+                for (var j = 0; j < character.specs.length; ++j)
+                {
+                    var spec = character.specs[j];
 
-                var a = document.createElement('a');
-                a.href = character.armory_url;
-                a.textContent = character.name;
-                a.style.color = getClassColor(character.class);
-                th.appendChild(a);
+                    if (spec.ilvl == null)
+                        continue;
 
-                _processSlot('main_hand', character);
-                _processSlot('off_hand', character);
-                _processSlot('head', character);
-                _processSlot('neck', character);
-                _processSlot('shoulder', character);
-                _processSlot('back', character);
-                _processSlot('chest', character);
-                _processSlot('wrist', character);
-                _processSlot('hands', character);
-                _processSlot('waist', character);
-                _processSlot('legs', character);
-                _processSlot('feet', character);
-                _processSlot('finger1', character);
-                _processSlot('finger2', character);
-                _processSlot('trinket1', character);
-                _processSlot('trinket2', character);
+                    var th = document.createElement('th');
+                    header_row.appendChild(th);
+
+                    var a = document.createElement('a');
+                    a.href = character.armory_url;
+                    a.textContent = character.name;
+                    a.style.color = getClassColor(character.class);
+                    th.appendChild(a);
+
+                    img = document.createElement('img');
+                    img.src = spec.icon;
+                    th.appendChild(img);
+
+                    span = document.createElement('span');
+                    span.textContent = spec.role;
+                    th.appendChild(span);
+
+                    _processSlot('main_hand', spec);
+                    _processSlot('off_hand', spec);
+                    _processSlot('head', spec);
+                    _processSlot('neck', spec);
+                    _processSlot('shoulder', spec);
+                    _processSlot('back', spec);
+                    _processSlot('chest', spec);
+                    _processSlot('wrist', spec);
+                    _processSlot('hands', spec);
+                    _processSlot('waist', spec);
+                    _processSlot('legs', spec);
+                    _processSlot('feet', spec);
+                    _processSlot('finger1', spec);
+                    _processSlot('finger2', spec);
+                    _processSlot('trinket1', spec);
+                    _processSlot('trinket2', spec);
+                }
             }
 
             $('#' + table_id + '-progress').hide();
@@ -356,9 +394,8 @@
         <thead>
             <tr>
                 <th>Name</th>
-                <th>iLevel</th>
-                <th>Max iLevel</th>
                 <th>Role</th>
+                <th>iLevel</th>
             </td>
         </thead>
         <tbody>

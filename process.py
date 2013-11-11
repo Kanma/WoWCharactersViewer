@@ -130,11 +130,19 @@ Connection.setup(locale=settings.LOCALE)
 
 
 # Import the data file (if one exist)
+json_data = None
 if os.path.exists(os.path.join(dest, 'data.json')):
     file = open(os.path.join(dest, 'data.json'), 'r')
     json_data = json.load(file)
     file.close()
-else:
+
+    # Ensure that the format is still valid (in case of update of the format)
+    if len(json_data['characters']) > 0:
+        json_character =  json_data['characters'][0]
+        if not(json_character.has_key('specs')):
+            json_data = None
+
+if json_data is None:
     json_data = {
         'characters': [],
         'items': {},
@@ -143,7 +151,7 @@ else:
 
 
 # Complete the data
-for (region, server, name) in settings.CHARACTER_NAMES:
+for (region, server, name, specs) in settings.CHARACTER_NAMES:
     try:
         print "Retrieving '%s (%s - %s)'..." % (name, server, region)
         character = Character(region, server, name,
@@ -151,41 +159,91 @@ for (region, server, name) in settings.CHARACTER_NAMES:
     except:
         print "    FAILED"
         continue
-    
-    json_character = {
-        'name': character.name,
-        'class': character.get_class_name(),
-        'current_ilvl': character.equipment.average_item_level_equipped,
-        'max_ilvl': character.equipment.average_item_level,
-        'armory_url': 'http://%s.battle.net/wow/%s/character/%s/%s/advanced' % (region, settings.LOCALE, character.get_realm_name(), character.name),
-        'role': None,
-        'spec_icon': None,
-        'items': {},
-        'modifications': {},
-        'valid_modifications': True,
-    }
-    
+
+
+    # Known character or new one?
+    json_character = filter(lambda x: x['name'] == name, json_data['characters'])
+    if len(json_character) == 1:
+        json_character = json_character[0]
+        json_character['max_ilvl'] = character.equipment.average_item_level
+
+        known_specs = map(lambda x: x['name'], json_character['specs'])
+        specs_to_add = filter(lambda x: x not in known_specs, specs)
+        for spec in specs_to_add:
+            json_spec = {
+                'name': spec,
+                'ilvl': None,
+                'role': None,
+                'icon': None,
+                'items': {},
+                'modifications': {},
+                'valid_modifications': True,
+            }
+
+            json_character['specs'].append(json_spec)
+
+        specs_to_remove = filter(lambda x: x['name'] not in specs, json_character['specs'])
+        for spec in specs_to_remove:
+            json_character['specs'].remove(spec)
+
+    else:
+        json_character = {
+            'name': character.name,
+            'class': character.get_class_name(),
+            'max_ilvl': character.equipment.average_item_level,
+            'armory_url': 'http://%s.battle.net/wow/%s/character/%s/%s/advanced' % (region, settings.LOCALE, character.get_realm_name(), character.name),
+            'specs': [],
+        }
+
+        for spec in specs:
+            json_spec = {
+                'name': spec,
+                'ilvl': None,
+                'role': None,
+                'icon': None,
+                'items': {},
+                'modifications': {},
+                'valid_modifications': True,
+            }
+
+            json_character['specs'].append(json_spec)
+
+
+        json_data['characters'].append(json_character)
+
+
+    # Process the active spec
     active_talents = filter(lambda x: x.selected, character.talents)[0]
-    
-    json_character['role'] = active_talents.role
-    json_character['spec_icon'] = active_talents.get_icon_url(size='small')
-    
-    json_character['items']['main_hand'] = item2json(character.equipment.main_hand)
-    json_character['items']['off_hand']  = item2json(character.equipment.off_hand)
-    json_character['items']['head']      = item2json(character.equipment.head)
-    json_character['items']['neck']      = item2json(character.equipment.neck)
-    json_character['items']['shoulder']  = item2json(character.equipment.shoulder)
-    json_character['items']['back']      = item2json(character.equipment.back)
-    json_character['items']['chest']     = item2json(character.equipment.chest)
-    json_character['items']['wrist']     = item2json(character.equipment.wrist)
-    json_character['items']['hands']     = item2json(character.equipment.hands)
-    json_character['items']['waist']     = item2json(character.equipment.waist)
-    json_character['items']['legs']      = item2json(character.equipment.legs)
-    json_character['items']['feet']      = item2json(character.equipment.feet)
-    json_character['items']['finger1']   = item2json(character.equipment.finger1)
-    json_character['items']['finger2']   = item2json(character.equipment.finger2)
-    json_character['items']['trinket1']  = item2json(character.equipment.trinket1)
-    json_character['items']['trinket2']  = item2json(character.equipment.trinket2)
+    if active_talents.name not in specs:
+        print "    Active spec must not be displayed: '%s'" % active_talents.name
+        continue
+
+    json_spec = filter(lambda x: x['name'] == active_talents.name, json_character['specs'])[0]
+
+    json_spec['role'] = active_talents.role
+    json_spec['ilvl'] = character.equipment.average_item_level_equipped
+    json_spec['icon'] = active_talents.get_icon_url(size='small')
+
+    json_spec['modifications']       = {}
+    json_spec['valid_modifications'] = True
+
+    json_spec['items']['main_hand'] = item2json(character.equipment.main_hand)
+    json_spec['items']['off_hand']  = item2json(character.equipment.off_hand)
+    json_spec['items']['head']      = item2json(character.equipment.head)
+    json_spec['items']['neck']      = item2json(character.equipment.neck)
+    json_spec['items']['shoulder']  = item2json(character.equipment.shoulder)
+    json_spec['items']['back']      = item2json(character.equipment.back)
+    json_spec['items']['chest']     = item2json(character.equipment.chest)
+    json_spec['items']['wrist']     = item2json(character.equipment.wrist)
+    json_spec['items']['hands']     = item2json(character.equipment.hands)
+    json_spec['items']['waist']     = item2json(character.equipment.waist)
+    json_spec['items']['legs']      = item2json(character.equipment.legs)
+    json_spec['items']['feet']      = item2json(character.equipment.feet)
+    json_spec['items']['finger1']   = item2json(character.equipment.finger1)
+    json_spec['items']['finger2']   = item2json(character.equipment.finger2)
+    json_spec['items']['trinket1']  = item2json(character.equipment.trinket1)
+    json_spec['items']['trinket2']  = item2json(character.equipment.trinket2)
+
 
     # Process AskMrRobot's data
     if wtf_path is not None:
@@ -218,7 +276,7 @@ for (region, server, name) in settings.CHARACTER_NAMES:
                     item = getattr(character.equipment, AMR_SLOTS_ID[slot])
                     if item is not None:
                         if item_id != item.id:
-                            json_character['valid_modifications'] = False
+                            json_spec['valid_modifications'] = False
                             break
 
                         modifs = {
@@ -228,7 +286,7 @@ for (region, server, name) in settings.CHARACTER_NAMES:
                         }
 
                         for index, gem in enumerate(gems):
-                            if gem != item.gems[index]:
+                            if (gem != item.gems[index]) and (gem != 0):
                                 if not(json_data['items']).has_key(str(gem)):
                                     print "    Retrieving gem #%d..." % gem
                                     connection = Connection()
@@ -257,12 +315,10 @@ for (region, server, name) in settings.CHARACTER_NAMES:
                             except:
                                 modifs['reforge'] = 'Unknown reforge (%s)' % str(reforge)
 
-                        json_character['modifications'][AMR_SLOTS_ID[slot]] = modifs
-
-    json_data['characters'].append(json_character)
+                        json_spec['modifications'][AMR_SLOTS_ID[slot]] = modifs
 
 
-# Generate the HTML page
+# Generate the JSON file
 output_file = open(os.path.join(dest, 'data.json'), 'w')
 output_file.write(json.dumps(json_data, indent=4))
 output_file.close()

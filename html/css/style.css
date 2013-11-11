@@ -155,7 +155,18 @@ table.modifications td li img
 }
 
 
+table.equipment th img,
+table.modifications th img
+{
+    margin-left: 6px;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+
 td.role span,
+table.equipment th a,
+table.equipment th span
 table.equipment td span,
 table.equipment td a,
 table.modifications td li a

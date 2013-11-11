@@ -1,8 +1,8 @@
 # List of all the characters to retrieve
-# Format: (region, server, character)
+# Format: (region, server, character, specs)
 CHARACTER_NAMES = [
-    ('eu', 'Khaz Modan', 'SomeCharacter'),
-    ('eu', 'Khaz Modan', 'AnotherCharacter'),
+    ('eu', 'Khaz Modan', 'SomeCharacter', ['spec1', 'spec2']),
+    ('eu', 'Khaz Modan', 'AnotherCharacter', ['spec1']),
 ]
 
 

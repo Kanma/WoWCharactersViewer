@@ -163,7 +163,7 @@
 
         function processEquipment(data, table_id)
         {
-            function _processSlot(slot, spec)
+            function _processSlot(slot, character, spec)
             {
                 var row = $('#' + table_id + ' tr[name=' + slot + ']')[0];
 
@@ -191,6 +191,34 @@
                     a.textContent = spec.items[slot].name;
                     a.style.color = getQualityColor(spec.items[slot].quality);
                     td.appendChild(a);
+
+                    a.rel = 'item=' + spec.items[slot].id + '&amp;lvl=' + character.level;
+
+                    if (spec.items[slot].random_enchant)
+                        a.rel += '&amp;rand=' + spec.items[slot].random_enchant;
+
+                    if (spec.items[slot].enchant)
+                        a.rel += '&amp;ench=' + spec.items[slot].enchant;
+
+                    if (spec.items[slot].gems && (spec.items[slot].gems.length > 0))
+                    {
+                        a.rel += '&amp;gems=' + spec.items[slot].gems[0];
+                        for (var i = 1; i < spec.items[slot].gems.length; ++i)
+                            a.rel += ':' + spec.items[slot].gems[i];
+                    }
+
+                    if (spec.items[slot].extra_socket)
+                        a.rel += '&amp;sock';
+
+                    if (spec.items[slot].reforge)
+                        a.rel += '&amp;forg=' + spec.items[slot].reforge;
+
+                    if (spec.items[slot].set && (spec.items[slot].set.length > 0))
+                    {
+                        a.rel += '&amp;pcs=' + spec.items[slot].set[0];
+                        for (var i = 1; i < spec.items[slot].set.length; ++i)
+                            a.rel += ':' + spec.items[slot].set[i];
+                    }
                 }
                 else
                 {
@@ -229,22 +257,22 @@
                     span.textContent = spec.role;
                     th.appendChild(span);
 
-                    _processSlot('main_hand', spec);
-                    _processSlot('off_hand', spec);
-                    _processSlot('head', spec);
-                    _processSlot('neck', spec);
-                    _processSlot('shoulder', spec);
-                    _processSlot('back', spec);
-                    _processSlot('chest', spec);
-                    _processSlot('wrist', spec);
-                    _processSlot('hands', spec);
-                    _processSlot('waist', spec);
-                    _processSlot('legs', spec);
-                    _processSlot('feet', spec);
-                    _processSlot('finger1', spec);
-                    _processSlot('finger2', spec);
-                    _processSlot('trinket1', spec);
-                    _processSlot('trinket2', spec);
+                    _processSlot('main_hand', character, spec);
+                    _processSlot('off_hand', character, spec);
+                    _processSlot('head', character, spec);
+                    _processSlot('neck', character, spec);
+                    _processSlot('shoulder', character, spec);
+                    _processSlot('back', character, spec);
+                    _processSlot('chest', character, spec);
+                    _processSlot('wrist', character, spec);
+                    _processSlot('hands', character, spec);
+                    _processSlot('waist', character, spec);
+                    _processSlot('legs', character, spec);
+                    _processSlot('feet', character, spec);
+                    _processSlot('finger1', character, spec);
+                    _processSlot('finger2', character, spec);
+                    _processSlot('trinket1', character, spec);
+                    _processSlot('trinket2', character, spec);
                 }
             }
 

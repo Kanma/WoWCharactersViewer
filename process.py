@@ -15,6 +15,12 @@ def item2json(item):
         'quality': item.get_quality_name(),
         'level': item.itemLevel,
         'icon': item.get_icon_url(size='small'),
+        'random_enchant': item.random_enchant,
+        'enchant': item.enchant,
+        'reforge': item.reforge,
+        'extra_socket': item.extra_socket,
+        'gems': item.gems.values(),
+        'set': item.set,
     }
 
 
@@ -165,6 +171,7 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
     json_character = filter(lambda x: x['name'] == name, json_data['characters'])
     if len(json_character) == 1:
         json_character = json_character[0]
+        json_character['level'] = character.level
         json_character['max_ilvl'] = character.equipment.average_item_level
 
         known_specs = map(lambda x: x['name'], json_character['specs'])
@@ -189,6 +196,7 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
     else:
         json_character = {
             'name': character.name,
+            'level': character.level,
             'class': character.get_class_name(),
             'max_ilvl': character.equipment.average_item_level,
             'armory_url': 'http://%s.battle.net/wow/%s/character/%s/%s/advanced' % (region, settings.LOCALE, character.get_realm_name(), character.name),

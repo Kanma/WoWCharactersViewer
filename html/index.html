@@ -182,18 +182,18 @@
                     else if (spec.items[slot].level > spec.ilvl + 10)
                         span.className += ' above';
 
-                    var img = document.createElement('img');
-                    if (spec.items[slot].upgrade !== null
-                        && spec.items[slot].upgrade['current'] < spec.items[slot].upgrade['total'])
+                    if (spec.items[slot].upgrade &&
+                        (spec.items[slot].upgrade['current'] < spec.items[slot].upgrade['total']))
                     {
-                        img.src = 'images/up-circular-32.png';
+                        var img = document.createElement('img');
+                        img.className = 'upgrade';
+                        img.src = 'images/up-circular-16.png';
+                        td.appendChild(img);
                     }
                     else
                     {
-                        img.src = 'images/blank.png';
+                        span.className += ' no-upgrade';
                     }
-                    img.width = 12;
-                    td.appendChild(img);
 
                     var img = document.createElement('img');
                     img.src = spec.items[slot].icon;
@@ -207,7 +207,7 @@
 
                     a.rel = 'item=' + spec.items[slot].id + '&amp;lvl=' + character.level;
 
-                    if (spec.items[slot].upgrade !== null)
+                    if (spec.items[slot].upgrade)
                         a.rel += '&amp;upgd=' + spec.items[slot].upgrade['current'];
 
                     if (spec.items[slot].random_enchant)

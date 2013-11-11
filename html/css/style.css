@@ -183,6 +183,12 @@ table.equipment td span.level
 }
 
 
+table.equipment td span.level.no-upgrade
+{
+    margin-right: 26px;
+}
+
+
 table.equipment td span.level.below
 {
     color: #E00000;

@@ -207,6 +207,9 @@
 
                     a.rel = 'item=' + spec.items[slot].id + '&amp;lvl=' + character.level;
 
+                    if (spec.items[slot].upgrade !== null)
+                        a.rel += '&amp;upgd=' + spec.items[slot].upgrade['current'];
+
                     if (spec.items[slot].random_enchant)
                         a.rel += '&amp;rand=' + spec.items[slot].random_enchant;
 

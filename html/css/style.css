@@ -44,7 +44,8 @@ th
 }
 
 
-table.equipment th.slot
+table.equipment th.slot,
+table.modifications th.slot
 {
     border: none;
     width: 5em;

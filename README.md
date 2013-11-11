@@ -8,8 +8,8 @@ characters you are interested in.
 
 Download the required submodules by executing:
 
-`$ git submodule init
-$ git submodule update`
+    $ git submodule init
+    $ git submodule update
 
 
 ## Execution
@@ -20,7 +20,7 @@ The default value for *dest_folder* is `./html`.
 
 The (optional) *--data* option is used to indicates the folder where the game add-ons
 saves their data (for instance, on OS X:
-/Applications/World\ of\ Warcraft/WTF/Account/<username>/). The script will look there if
+`/Applications/World\ of\ Warcraft/WTF/Account/<username>/`). The script will look there if
 there is some data produced by the AskMrRobot add-on.
 
 It will produce a JSON file (*data.json*) in *dest_folder*.
@@ -28,15 +28,14 @@ It will produce a JSON file (*data.json*) in *dest_folder*.
 The *process.py* script needs a file called *settings.py* that contains informations about
 the characters you want to display. Here is an example one:
 
-`# List of all the characters to retrieve, format: (region, server, character, specs)
-CHARACTER_NAMES = [
-    ('eu', 'Khaz Modan', 'SomeCharacter', ['Protection', 'Arms']),
-    ('eu', 'Khaz Modan', 'AnotherCharacter', ['Fire']),
-]`
-
-
-`# Valid values: us, eu, kr, tw, cn
-LOCALE = 'fr'`
+    # List of all the characters to retrieve, format: (region, server, character, specs)
+    CHARACTER_NAMES = [
+        ('eu', 'Khaz Modan', 'SomeCharacter', ['Protection', 'Arms']),
+        ('eu', 'Khaz Modan', 'AnotherCharacter', ['Fire']),
+    ]
+    
+    # Valid values: us, eu, kr, tw, cn
+    LOCALE = 'fr'
 
 
 ## Display

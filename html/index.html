@@ -205,7 +205,10 @@
                     a.style.color = getQualityColor(spec.items[slot].quality);
                     td.appendChild(a);
 
-                    a.rel = 'item=' + spec.items[slot].id + '&amp;lvl=' + character.level;
+                    a.rel = 'item=' + spec.items[slot].id;
+
+                    if (spec.items[slot].quality == 'Heirloom')
+                        a.rel += '&amp;lvl=' + character.level;
 
                     if (spec.items[slot].upgrade)
                         a.rel += '&amp;upgd=' + spec.items[slot].upgrade['current'];

@@ -129,19 +129,27 @@ if wtf_path is not None:
 Connection.setup(locale=settings.LOCALE)
 
 
-# Retrieve the data
-json_data = {
-    'characters': [],
-    'items': {},
-    'locale': settings.LOCALE,
-}
+# Import the data file (if one exist)
+if os.path.exists(os.path.join(dest, 'data.json')):
+    file = open(os.path.join(dest, 'data.json'), 'r')
+    json_data = json.load(file)
+    file.close()
+else:
+    json_data = {
+        'characters': [],
+        'items': {},
+        'locale': settings.LOCALE,
+    }
 
+
+# Complete the data
 for (region, server, name) in settings.CHARACTER_NAMES:
     try:
+        print "Retrieving '%s (%s - %s)'..." % (name, server, region)
         character = Character(region, server, name,
                               fields=[Character.ITEMS, Character.TALENTS])
     except:
-        print "Failed to retrieve the character '%s' on server '%s (%s)'" % (name, server, region)
+        print "    FAILED"
         continue
     
     json_character = {
@@ -189,8 +197,8 @@ for (region, server, name) in settings.CHARACTER_NAMES:
 
             import_data = filter(lambda x: x.startswith('AmrImportString = '), lines)
             if len(import_data) == 1:
-                items = filter(lambda x: x.startswith('item='), import_data[0].split(';'))
-                for item in items:
+                parsed_items = filter(lambda x: x.startswith('item='), import_data[0].split(';'))
+                for item in parsed_items:
                     parts = item.split(':')
                     slot = int(parts[0][5:])
                     item_id = int(parts[1])
@@ -222,12 +230,15 @@ for (region, server, name) in settings.CHARACTER_NAMES:
                         for index, gem in enumerate(gems):
                             if gem != item.gems[index]:
                                 if not(json_data['items']).has_key(str(gem)):
+                                    print "    Retrieving gem #%d..." % gem
                                     connection = Connection()
                                     json_gem = connection.get_item(region, gem)
                                     if json_gem is not None:
                                         json_data['items'][str(gem)] = json_gem
+                                        print "        %s" % json_gem['name'].encode('utf-8')
                                     else:
                                         json_data['items'][str(gem)] = None
+                                        print "        FAILED"
 
                                 modifs['gems'][index] = gem
 

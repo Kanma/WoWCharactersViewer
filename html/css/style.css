@@ -36,6 +36,18 @@ table.modifications
 }
 
 
+table tr:hover
+{
+    background-color: #DDDDFF;
+}
+
+
+table tr.no-highlight:hover
+{
+    background-color: #FFFFFF;
+}
+
+
 td,
 th
 {
@@ -49,6 +61,13 @@ table.modifications th.slot
 {
     border: none;
     width: 5em;
+}
+
+
+table.equipment td.slot,
+table.modifications td.slot
+{
+    font-weight: bold;
 }
 
 

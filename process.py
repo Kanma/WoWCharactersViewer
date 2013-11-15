@@ -3,6 +3,7 @@
 import sys
 import os
 import json
+from tools.utils import load_json_file
 
 
 def item2json(item):
@@ -25,6 +26,16 @@ def item2json(item):
     }
 
 
+def validate_json_file(json_data):
+    if len(json_data['characters']) > 0:
+        json_character = json_data['characters'][0]
+        if not(json_character.has_key('specs')):
+            return False
+
+    return True
+
+
+
 AMR_SLOTS_ID = [
     'head',
     'neck',
@@ -44,6 +55,25 @@ AMR_SLOTS_ID = [
     'main_hand',
     'off_hand',
 ]
+
+
+RAID_SLOTS_NAMES = {
+    'head': 'head',
+    'neck': 'neck',
+    'shoulder': 'shoulder',
+    'chest': 'chest',
+    'waist': 'waist',
+    'legs': 'legs',
+    'feet': 'feet',
+    'wrists': 'wrist',
+    'hands': 'hands',
+    'back': 'back',
+    'one-hand': 'main_hand',
+    'two-hand': 'main_hand',
+    'ranged': 'main_hand',
+    'held in off-hand': 'off_hand',
+    'off-hand': 'off_hand',
+}
 
 
 ENCHANTS = {}
@@ -132,29 +162,23 @@ if wtf_path is not None:
             REFORGES[id] = '%s -> %s' % (src, dst)
 
 
-# Setup the connection
-Connection.setup(locale=settings.LOCALE)
+# Import the list of raids (if available)
+json_raids = load_json_file(os.path.join(script_path, 'data/raids.json'), None)
 
 
 # Import the data file (if one exist)
-json_data = None
-if os.path.exists(os.path.join(dest, 'data.json')):
-    file = open(os.path.join(dest, 'data.json'), 'r')
-    json_data = json.load(file)
-    file.close()
+json_data = load_json_file(os.path.join(dest, 'data.json'),
+                           {
+                               'characters': [],
+                               'items': {},
+                               'locale': settings.LOCALE,
+                           },
+                           validation=validate_json_file
+                    )
 
-    # Ensure that the format is still valid (in case of update of the format)
-    if len(json_data['characters']) > 0:
-        json_character =  json_data['characters'][0]
-        if not(json_character.has_key('specs')):
-            json_data = None
 
-if json_data is None:
-    json_data = {
-        'characters': [],
-        'items': {},
-        'locale': settings.LOCALE,
-    }
+# Setup the connection
+Connection.setup(locale=settings.LOCALE)
 
 
 # Complete the data
@@ -203,6 +227,7 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
             'max_ilvl': character.equipment.average_item_level,
             'armory_url': 'http://%s.battle.net/wow/%s/character/%s/%s/advanced' % (region, settings.LOCALE, character.get_realm_name(), character.name),
             'specs': [],
+            'raid_upgrades': None,
         }
 
         for spec in specs:
@@ -254,6 +279,100 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
     json_spec['items']['finger2']   = item2json(character.equipment.finger2)
     json_spec['items']['trinket1']  = item2json(character.equipment.trinket1)
     json_spec['items']['trinket2']  = item2json(character.equipment.trinket2)
+
+
+    # Process the raid loot tables (if available)
+    if json_raids is not None:
+        json_upgrades = []
+
+        spec1 = character.talents[0]._data['spec']['order']
+
+        try:
+            spec2 = character.talents[1]._data['spec']['order']
+        except:
+            spec2 = -1
+
+        for json_raid_infos in json_raids:
+            json_upgrade = {
+                'raid': json_raid_infos['name'],
+                'boss': [],
+            }
+
+            for boss_id, json_boss_infos in json_raid_infos['boss'].items():
+                json_boss = {
+                    'id': int(boss_id),
+                    'name': json_boss_infos['name'],
+                    'loot_tables': {
+                        'lfr': [],
+                        'flex': [],
+                        'normal': [],
+                        'heroic': [],
+                    }
+                }
+
+                for json_item_infos in json_boss_infos['loot_table']:
+                    for json_spec_infos in json_item_infos['specs']:
+                        if (json_spec_infos['class'] != character.class_) or \
+                           ((json_spec_infos['spec'] != spec1) and (json_spec_infos['spec'] != spec2)):
+                            continue
+
+                        spec_name = character.talents[0].name if json_spec_infos['spec'] == spec1 else character.talents[1].name
+
+                        try:
+                            json_spec_ref = filter(lambda x: x['name'] == spec_name, json_character['specs'])[0]
+                        except:
+                            continue
+
+                        slots = []
+                        if json_item_infos['slot'] == 'trinket':
+                            item = json_spec_ref['items']['trinket1']
+                            if (item is None) or (json_item_infos['level'] > item['level']):
+                                slots.append('trinket1')
+
+                            item = json_spec_ref['items']['trinket2']
+                            if (item is None) or (json_item_infos['level'] > item['level']):
+                                slots.append('trinket2')
+
+                        elif json_item_infos['slot'] == 'finger':
+                            item = json_spec_ref['items']['finger1']
+                            if (item is None) or (json_item_infos['level'] > item['level']):
+                                slots.append('finger1')
+
+                            item = json_spec_ref['items']['finger2']
+                            if (item is None) or (json_item_infos['level'] > item['level']):
+                                slots.append('finger2')
+
+                        elif json_item_infos['slot'] == 'consumable':
+                            slots.append('consumable')
+
+                        else:
+                            item = json_spec_ref['items'][RAID_SLOTS_NAMES[json_item_infos['slot']]]
+                            if (item is None) or (json_item_infos['level'] > item['level']):
+                                slots.append(RAID_SLOTS_NAMES[json_item_infos['slot']])
+
+                        for slot in slots:
+                            json_item = {
+                                'id': json_item_infos['id'],
+                                'name': json_item_infos['name'],
+                                'level': json_item_infos['level'],
+                                'spec': spec_name,
+                                'slot': slot,
+                            }
+
+                            if 'lfr' in json_item_infos['difficulties']:
+                                json_boss['loot_tables']['lfr'].append(json_item)
+                            elif 'flex' in json_item_infos['difficulties']:
+                                json_boss['loot_tables']['flex'].append(json_item)
+                            elif 'normal 10' in json_item_infos['difficulties']:
+                                json_boss['loot_tables']['normal'].append(json_item)
+                            elif 'heroic 10' in json_item_infos['difficulties']:
+                                json_boss['loot_tables']['heroic'].append(json_item)
+
+                json_upgrade['boss'].append(json_boss)
+
+            json_upgrades.append(json_upgrade)
+
+        json_character['raid_upgrades'] = json_upgrades
 
 
     # Process AskMrRobot's data

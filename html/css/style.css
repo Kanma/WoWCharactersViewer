@@ -29,10 +29,19 @@ table.equipment
 }
 
 
-table.modifications
+table.modifications,
+table.raid-updates
 {
     font-size: 0.9em;
     width: 100%;
+    table-layout: fixed;
+}
+
+
+table.raid-updates-details
+{
+    font-size: 0.9em;
+    table-layout: fixed;
 }
 
 
@@ -57,17 +66,26 @@ th
 
 
 table.equipment th.slot,
-table.modifications th.slot
+table.modifications th.slot,
+table.raid-updates th.character,
+table.raid-updates-details th.slot
 {
     border: none;
-    width: 5em;
+    width: 6em;
 }
 
 
 table.equipment td.slot,
-table.modifications td.slot
+table.modifications td.slot,
+table.raid-updates-details td.slot
 {
     font-weight: bold;
+}
+
+
+table.raid-updates th.character
+{
+    width: 12em;
 }
 
 
@@ -176,7 +194,8 @@ table.modifications td li img
 
 
 table.equipment th img,
-table.modifications th img
+table.modifications th img,
+table.raid-updates td img
 {
     margin-left: 6px;
     margin-right: 6px;
@@ -195,13 +214,28 @@ table.equipment th a,
 table.equipment th span
 table.equipment td span,
 table.equipment td a,
-table.modifications td li a
+table.modifications td li a,
+table.raid-updates td a,
+table.raid-updates td span
 {
     vertical-align: middle;
 }
 
 
-table.equipment td span.level
+table.raid-updates td.count
+{
+    text-align: center;
+}
+
+
+table.raid-updates td.count a
+{
+    color: #0000BB;
+}
+
+
+table.equipment td span.level,
+table.raid-updates-details td span.level
 {
     font-style: italic;
     color: #AAAAAA;
@@ -236,6 +270,20 @@ table.modifications td ul
 
 
 table.modifications td li
+{
+    margin-bottom: 2px;
+}
+
+
+table.raid-updates-details td ul
+{
+    list-style: none;
+    margin-bottom: 0;
+    padding-left: 0;
+}
+
+
+table.raid-updates-details td li
 {
     margin-bottom: 2px;
 }

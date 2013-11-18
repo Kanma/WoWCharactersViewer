@@ -162,19 +162,24 @@ if wtf_path is not None:
             REFORGES[id] = '%s -> %s' % (src, dst)
 
 
-# Import the list of raids (if available)
-json_raids = load_json_file(os.path.join(script_path, 'data/raids.json'), None)
-
-
 # Import the data file (if one exist)
 json_data = load_json_file(os.path.join(dest, 'data.json'),
                            {
                                'characters': [],
                                'items': {},
                                'locale': settings.LOCALE,
+                               'raids': None,
+                               'amr': False,
                            },
                            validation=validate_json_file
                     )
+
+
+# Import the list of raids (if available)
+json_raids = load_json_file(os.path.join(script_path, 'data/raids.json'), None)
+
+if json_raids is not None:
+    json_data['raids'] = map(lambda x: x['name'], json_raids)
 
 
 # Setup the connection
@@ -382,6 +387,8 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
             file = open(path, 'r')
             lines = file.readlines()
             file.close()
+
+            json_data['amr'] = True
 
             import_data = filter(lambda x: x.startswith('AmrImportString = '), lines)
             if len(import_data) == 1:

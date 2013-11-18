@@ -371,6 +371,12 @@
             }
 
 
+            if (!data.amr)
+            {
+                $('#' + table_id + '-container').hide();
+                return;
+            }
+
             var header_row = $('#' + table_id + ' tr[name=characters]')[0];
 
             for (var i = 0; i < data.characters.length; ++i)
@@ -796,67 +802,69 @@
     </table>
 
 
-    <h1>Modifications</h1>
+    <div id="modifications-container">
+        <h1>Modifications</h1>
 
-    <img id="modifications-progress" src="images/progress.gif" />
+        <img id="modifications-progress" src="images/progress.gif" />
 
-    <table id="modifications" class="modifications" cellspacing="0" cellpadding="0" style="display: none;">
-        <thead>
-            <tr name="characters" class="no-highlight">
-                <th class="slot"></th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr name="main_hand">
-                <td class="slot">Main hand</td>
-            </tr>
-            <tr name="off_hand">
-                <td class="slot">Off hand</td>
-            </tr>
-            <tr name="head">
-                <td class="slot">Head</td>
-            </tr>
-            <tr name="neck">
-                <td class="slot">Neck</td>
-            </tr>
-            <tr name="shoulder">
-                <td class="slot">Shoulder</td>
-            </tr>
-            <tr name="back">
-                <td class="slot">Back</td>
-            </tr>
-            <tr name="chest">
-                <td class="slot">Chest</td>
-            </tr>
-            <tr name="wrist">
-                <td class="slot">Wrist</td>
-            </tr>
-            <tr name="hands">
-                <td class="slot">Hands</td>
-            </tr>
-            <tr name="waist">
-                <td class="slot">Waist</td>
-            </tr>
-            <tr name="legs">
-                <td class="slot">Legs</td>
-            </tr>
-            <tr name="feet">
-                <td class="slot">Feet</td>
-            </tr>
-            <tr name="finger1">
-                <td class="slot">Finger 1</td>
-            </tr>
-            <tr name="finger2">
-                <td class="slot">Finger 2</td>
-            </tr>
-            <tr name="trinket1">
-                <td class="slot">Trinket 1</td>
-            </tr>
-            <tr name="trinket2">
-                <td class="slot">Trinket 2</td>
-            </tr>
-        </tbody>
-    </table>
+        <table id="modifications" class="modifications" cellspacing="0" cellpadding="0" style="display: none;">
+            <thead>
+                <tr name="characters" class="no-highlight">
+                    <th class="slot"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr name="main_hand">
+                    <td class="slot">Main hand</td>
+                </tr>
+                <tr name="off_hand">
+                    <td class="slot">Off hand</td>
+                </tr>
+                <tr name="head">
+                    <td class="slot">Head</td>
+                </tr>
+                <tr name="neck">
+                    <td class="slot">Neck</td>
+                </tr>
+                <tr name="shoulder">
+                    <td class="slot">Shoulder</td>
+                </tr>
+                <tr name="back">
+                    <td class="slot">Back</td>
+                </tr>
+                <tr name="chest">
+                    <td class="slot">Chest</td>
+                </tr>
+                <tr name="wrist">
+                    <td class="slot">Wrist</td>
+                </tr>
+                <tr name="hands">
+                    <td class="slot">Hands</td>
+                </tr>
+                <tr name="waist">
+                    <td class="slot">Waist</td>
+                </tr>
+                <tr name="legs">
+                    <td class="slot">Legs</td>
+                </tr>
+                <tr name="feet">
+                    <td class="slot">Feet</td>
+                </tr>
+                <tr name="finger1">
+                    <td class="slot">Finger 1</td>
+                </tr>
+                <tr name="finger2">
+                    <td class="slot">Finger 2</td>
+                </tr>
+                <tr name="trinket1">
+                    <td class="slot">Trinket 1</td>
+                </tr>
+                <tr name="trinket2">
+                    <td class="slot">Trinket 2</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
 
     <div id="raid-updates-container">

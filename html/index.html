@@ -187,8 +187,12 @@
                     {
                         var img = document.createElement('img');
                         img.className = 'upgrade';
-                        img.src = 'images/up-circular-16.png';
                         td.appendChild(img);
+
+                        if (spec.items[slot].level >= data.minimum_ilevel_for_upgrades)
+                            img.src = 'images/up-circular-16.png';
+                        else
+                            img.src = 'images/up-circular-16-gray.png';
                     }
                     else
                     {

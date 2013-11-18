@@ -34,8 +34,9 @@ the characters you want to display. Here is an example one:
         ('eu', 'Khaz Modan', 'AnotherCharacter', ['Fire']),
     ]
     
-    # Valid values: us, eu, kr, tw, cn
     LOCALE = 'fr'
+
+    MINIMUM_ILEVEL_FOR_UPGRADES = 540
 
 
 ## Display

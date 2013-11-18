@@ -6,5 +6,7 @@ CHARACTER_NAMES = [
 ]
 
 
-# Valid values: us, eu, kr, tw, cn
 LOCALE = 'fr'
+
+
+MINIMUM_ILEVEL_FOR_UPGRADES = 540

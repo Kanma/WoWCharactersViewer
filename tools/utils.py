@@ -10,7 +10,7 @@ def load_json_file(path, default={}, validation=None):
         json_data = json.load(file)
         file.close()
 
-        if (validation is not None) and not(validation(json_data)):
+        if (validation is not None) and not(validation(json_data, default)):
             json_data = None
 
     if json_data is None:

@@ -26,13 +26,27 @@ def item2json(item):
     }
 
 
-def validate_json_file(json_data):
+
+def validate_json_file(json_data, default):
     if len(json_data['characters']) > 0:
         json_character = json_data['characters'][0]
         if not(json_character.has_key('specs')):
             return False
 
+    if json_data['locale'] != default['locale']:
+        return False
+
+    json_data['minimum_ilevel_for_upgrades'] = default['minimum_ilevel_for_upgrades']
+
     return True
+
+
+
+def item_level(item):
+    if item.has_key('upgrade') and item.has_key('itemLevelIncrement'):
+        return item['level'] - item['upgrade']['itemLevelIncrement']
+
+    return item['level']
 
 
 
@@ -127,6 +141,10 @@ try:
     if not(hasattr(settings, 'LOCALE')):
         print 'No LOCALE option found in the settings file'
         sys.exit(-1)
+
+    if not(hasattr(settings, 'MINIMUM_ILEVEL_FOR_UPGRADES')):
+        print 'No MINIMUM_ILEVEL_FOR_UPGRADES option found in the settings file'
+        sys.exit(-1)
 except:
     import traceback
     print 'Failed to load the settings file, reason:\n' + traceback.format_exc()
@@ -168,6 +186,7 @@ json_data = load_json_file(os.path.join(dest, 'data.json'),
                                'characters': [],
                                'items': {},
                                'locale': settings.LOCALE,
+                               'minimum_ilevel_for_upgrades': settings.MINIMUM_ILEVEL_FOR_UPGRADES,
                                'raids': None,
                                'amr': False,
                            },
@@ -331,28 +350,28 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
                         slots = []
                         if json_item_infos['slot'] == 'trinket':
                             item = json_spec_ref['items']['trinket1']
-                            if (item is None) or (json_item_infos['level'] > item['level']):
+                            if (item is None) or (json_item_infos['level'] > item_level(item)):
                                 slots.append('trinket1')
-
-                            item = json_spec_ref['items']['trinket2']
-                            if (item is None) or (json_item_infos['level'] > item['level']):
-                                slots.append('trinket2')
+                            else:
+                                item = json_spec_ref['items']['trinket2']
+                                if (item is None) or (json_item_infos['level'] > item_level(item)):
+                                    slots.append('trinket2')
 
                         elif json_item_infos['slot'] == 'finger':
                             item = json_spec_ref['items']['finger1']
-                            if (item is None) or (json_item_infos['level'] > item['level']):
+                            if (item is None) or (json_item_infos['level'] > item_level(item)):
                                 slots.append('finger1')
-
-                            item = json_spec_ref['items']['finger2']
-                            if (item is None) or (json_item_infos['level'] > item['level']):
-                                slots.append('finger2')
+                            else:
+                                item = json_spec_ref['items']['finger2']
+                                if (item is None) or (json_item_infos['level'] > item_level(item)):
+                                    slots.append('finger2')
 
                         elif json_item_infos['slot'] == 'consumable':
                             slots.append('consumable')
 
                         else:
                             item = json_spec_ref['items'][RAID_SLOTS_NAMES[json_item_infos['slot']]]
-                            if (item is None) or (json_item_infos['level'] > item['level']):
+                            if (item is None) or (json_item_infos['level'] > item_level(item)):
                                 slots.append(RAID_SLOTS_NAMES[json_item_infos['slot']])
 
                         for slot in slots:

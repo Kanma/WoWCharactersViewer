@@ -43,7 +43,7 @@ def validate_json_file(json_data, default):
 
 
 def item_level(item):
-    if item.has_key('upgrade') and item.has_key('itemLevelIncrement'):
+    if item.has_key('upgrade') and item['upgrade'].has_key('itemLevelIncrement'):
         return item['level'] - item['upgrade']['itemLevelIncrement']
 
     return item['level']

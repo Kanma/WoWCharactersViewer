@@ -20,6 +20,13 @@ table
 }
 
 
+table.characters span.ilvl
+{
+    display: inline-block;
+    width: 2em;
+}
+
+
 table.equipment
 {
     font-size: 0.9em;

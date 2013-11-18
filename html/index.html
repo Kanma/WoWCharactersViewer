@@ -151,6 +151,7 @@
                     td.appendChild(span);
 
                     span = document.createElement('span');
+                    span.className = 'ilvl';
                     span.textContent = spec.ilvl;
                     td.appendChild(span);
                 }
@@ -730,7 +731,7 @@
 
     <img id="characters-progress" src="images/progress.gif" />
 
-    <table id="characters" cellspacing="0" cellpadding="0" style="display: none;">
+    <table id="characters" class="characters" cellspacing="0" cellpadding="0" style="display: none;">
         <thead>
             <tr class="no-highlight">
                 <th>Name</th>

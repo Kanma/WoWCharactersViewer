@@ -347,6 +347,9 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
                         except:
                             continue
 
+                        if json_spec_ref['ilvl'] is None:
+                            continue
+
                         slots = []
                         if json_item_infos['slot'] == 'trinket':
                             item = json_spec_ref['items']['trinket1']

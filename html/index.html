@@ -508,7 +508,7 @@
             }
 
 
-            function _add_cell(row, nb, raid, mode, spec, character_name)
+            function _add_cell(row, nb, raid, mode, spec, character)
             {
                 var td = document.createElement('td');
                 td.className = 'count';
@@ -521,11 +521,15 @@
 
                 $(a).click(function()
                 {
-                    var header_row = $('#' + table_id + '-details thead tr')[0];
+                    var header_row_wings = $('#' + table_id + '-details thead tr[name=wings]')[0];
+                    var header_row_boss = $('#' + table_id + '-details thead tr[name=boss]')[0];
 
                     var th_to_remove = $('#' + table_id + '-details th');
-                    for (var i = 1; i < th_to_remove.length; ++i)
-                        header_row.removeChild(th_to_remove[i]);
+                    for (var i = 0; i < th_to_remove.length; ++i)
+                    {
+                        if (th_to_remove[i].className != 'slot')
+                            th_to_remove[i].parentNode.removeChild(th_to_remove[i]);
+                    }
 
                     var td_to_remove = $('#' + table_id + '-details td');
                     for (var i = 0; i < td_to_remove.length; ++i)
@@ -556,13 +560,26 @@
                         consumable: 0,
                     };
 
-                    for (var i = 0; i < raid.boss.length; ++i)
+                    var boss_ids = [];
+                    for (var i = 0; i < raid.wings.length; ++i)
                     {
-                        var boss = raid.boss[i];
+                        var th = document.createElement('th');
+                        th.textContent = raid.wings[i].name;
+                        th.colSpan = raid.wings[i].boss.length;
+                        header_row_wings.appendChild(th);
+
+                        boss_ids = boss_ids.concat(raid.wings[i].boss);
+                    }
+
+                    var raid_upgrade_infos = _get_raid_upgrade_infos(character, raid.name, boss_ids);
+
+                    for (var i = 0; i < raid_upgrade_infos.length; ++i)
+                    {
+                        var boss = raid_upgrade_infos[i];
 
                         var th = document.createElement('th');
                         th.textContent = boss.name;
-                        header_row.appendChild(th);
+                        header_row_boss.appendChild(th);
 
                         counters.main_hand  += _process_slot('main_hand', boss.loot_tables[mode], spec);
                         counters.off_hand   += _process_slot('off_hand', boss.loot_tables[mode], spec);
@@ -592,11 +609,48 @@
 
                     $('#' + table_id + '-details').show();
 
-                    $('#' + table_id + '-details-title').text('Raid updates - ' + character_name + ' - ' + spec.name + ' - ' + mode);
+                    $('#' + table_id + '-details-title').text('Raid updates - ' + character.name + ' - ' + spec.name + ' - ' + mode);
                     $('#' + table_id + '-details-title').show();
 
                     return false;
                 });
+            }
+
+
+            function _get_raid_upgrade_infos(character, raid_name, boss_ids)
+            {
+                // Search the correct raid infos in the character data
+                var raid_infos = null;
+                for (var i = 0; i < character.raid_upgrades.length; ++i)
+                {
+                    raid_infos = character.raid_upgrades[i];
+                    if (raid_infos.raid == raid_name)
+                        break;
+
+                    raid_infos = null;
+                }
+
+                if (raid_infos == null)
+                    return [];
+
+                // Search the correct wing infos in the character data
+                var raid_upgrade_infos = [];
+                for (var i = 0; i < boss_ids.length; ++i)
+                {
+                    var boss_id = boss_ids[i];
+
+                    for (var j = 0; j < raid_infos.boss.length; ++j)
+                    {
+                        var boss = raid_infos.boss[j];
+                        if (boss.id == boss_id)
+                        {
+                            raid_upgrade_infos.push(boss);
+                            break;
+                        }
+                    }
+                }
+
+                return raid_upgrade_infos;
             }
 
 
@@ -617,6 +671,10 @@
             tr2.className = 'no-highlight';
             thead.appendChild(tr2);
 
+            var tr3 = document.createElement('tr');
+            tr3.className = 'no-highlight';
+            thead.appendChild(tr3);
+
             var th = document.createElement('th');
             th.className = 'character';
             tr1.appendChild(th);
@@ -625,28 +683,50 @@
             th.className = 'character';
             tr2.appendChild(th);
 
+            th = document.createElement('th');
+            th.className = 'character';
+            tr3.appendChild(th);
+
             for (var i = 0; i < data.raids.length; ++i)
             {
                 var th = document.createElement('th');
-                th.textContent = data.raids[i];
-                th.colSpan = 4;
+                th.textContent = data.raids[i].name;
+                th.colSpan = data.raids[i].wings.length * 2 + 2;
                 tr1.appendChild(th);
 
                 th = document.createElement('th');
                 th.textContent = 'LFR';
+                th.colSpan = data.raids[i].wings.length;
                 tr2.appendChild(th);
 
                 th = document.createElement('th');
                 th.textContent = 'Flex';
+                th.colSpan = data.raids[i].wings.length;
                 tr2.appendChild(th);
 
                 th = document.createElement('th');
                 th.textContent = 'Normal';
+                th.rowSpan = 2;
                 tr2.appendChild(th);
 
                 th = document.createElement('th');
                 th.textContent = 'Heroic';
+                th.rowSpan = 2;
                 tr2.appendChild(th);
+
+                for (var j = 0; j < data.raids[i].wings.length; ++j)
+                {
+                    th = document.createElement('th');
+                    th.textContent = data.raids[i].wings[j].name;
+                    tr3.appendChild(th);
+                }
+
+                for (var j = 0; j < data.raids[i].wings.length; ++j)
+                {
+                    th = document.createElement('th');
+                    th.textContent = data.raids[i].wings[j].name;
+                    tr3.appendChild(th);
+                }
             }
 
             for (var i = 0; i < data.characters.length; ++i)
@@ -680,36 +760,41 @@
                     span.textContent = spec.role;
                     td.appendChild(span);
 
-                    for (var k = 0; k < data['raids'].length; ++k)
+                    for (var k = 0; k < data.raids.length; ++k)
                     {
-                        for (var l = 0; l < character.raid_upgrades.length; ++l)
+                        var nb_lfr = [];
+                        var nb_flex = [];
+                        var nb_normal = 0;
+                        var nb_heroic = 0;
+
+                        for (var l = 0; l < data.raids[k].wings.length; ++l)
                         {
-                            var upgrade = character.raid_upgrades[l];
-                            if (upgrade.raid != data.raids[k])
-                                continue;
+                            var boss_ids = data.raids[k].wings[l].boss;
 
-                            var nb_lfr = 0;
-                            var nb_flex = 0;
-                            var nb_normal = 0;
-                            var nb_heroic = 0;
+                            var raid_upgrade_infos = _get_raid_upgrade_infos(character, data.raids[k].name, boss_ids);
 
-                            for (var m = 0; m < upgrade.boss.length; ++m)
+                            nb_lfr[l] = 0;
+                            nb_flex[l] = 0;
+
+                            for (var m = 0; m < raid_upgrade_infos.length; ++m)
                             {
-                                var boss = upgrade.boss[m];
+                                var boss_infos = raid_upgrade_infos[m];
 
-                                nb_lfr    += _nb_upgrades(boss.loot_tables.lfr, spec.name);
-                                nb_flex   += _nb_upgrades(boss.loot_tables.flex, spec.name);
-                                nb_normal += _nb_upgrades(boss.loot_tables.normal, spec.name);
-                                nb_heroic += _nb_upgrades(boss.loot_tables.heroic, spec.name);
+                                nb_lfr[l]  += _nb_upgrades(boss_infos.loot_tables.lfr, spec.name);
+                                nb_flex[l] += _nb_upgrades(boss_infos.loot_tables.flex, spec.name);
+                                nb_normal  += _nb_upgrades(boss_infos.loot_tables.normal, spec.name);
+                                nb_heroic  += _nb_upgrades(boss_infos.loot_tables.heroic, spec.name);
                             }
-
-                            _add_cell(tr, nb_lfr, upgrade, 'lfr', spec, character.name);
-                            _add_cell(tr, nb_flex, upgrade, 'flex', spec, character.name);
-                            _add_cell(tr, nb_normal, upgrade, 'normal', spec, character.name);
-                            _add_cell(tr, nb_heroic, upgrade, 'heroic', spec, character.name);
-
-                            break;
                         }
+
+                        for (var l = 0; l < data.raids[k].wings.length; ++l)
+                            _add_cell(tr, nb_lfr[l], data.raids[k], 'lfr', spec, character);
+
+                        for (var l = 0; l < data.raids[k].wings.length; ++l)
+                            _add_cell(tr, nb_flex[l], data.raids[k], 'flex', spec, character);
+
+                        _add_cell(tr, nb_normal, data.raids[k], 'normal', spec, character);
+                        _add_cell(tr, nb_heroic, data.raids[k], 'heroic', spec, character);
                     }
                 }
             }
@@ -718,7 +803,7 @@
             $('#' + table_id).show();
         }
 
-        </script>
+    </script>
 </head>
 <body>
 
@@ -888,6 +973,9 @@
 
         <table id="raid-updates-details" class="raid-updates-details" cellspacing="0" cellpadding="0" style="display: none;">
             <thead>
+                <tr name="wings" class="no-highlight">
+                    <th class="slot"></th>
+                </tr>
                 <tr name="boss" class="no-highlight">
                     <th class="slot"></th>
                 </tr>

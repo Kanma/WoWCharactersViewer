@@ -198,7 +198,10 @@ json_data = load_json_file(os.path.join(dest, 'data.json'),
 json_raids = load_json_file(os.path.join(script_path, 'data/raids.json'), None)
 
 if json_raids is not None:
-    json_data['raids'] = map(lambda x: x['name'], json_raids)
+    json_data['raids'] = map(lambda x: {
+                                'name': x['name'],
+                                'wings': x['wings']
+                             }, json_raids)
 
 
 # Setup the connection

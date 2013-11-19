@@ -78,11 +78,28 @@ if url[-1] != '/':
 content = retrieve_url(url)
 
 
-# Parse it to retrieve the raid name
+# Parse it to retrieve the raid, wings and boss names
 document = parseString(content)
 
 title = document.getElementsByTagName('title')[0]
 raid_name = title.firstChild.data.split('-')[0].strip()
+
+wings = filter(lambda x: x.hasAttribute('class') and \
+                         (x.getAttribute('class').find('wing-name') >= 0),
+               document.getElementsByTagName('span'))
+
+wings_list = []
+for wing_element in wings:
+    wing = {
+        'name': wing_element.firstChild.data.strip(),
+        'boss': [],
+    }
+
+    for boss_link in wing_element.parentNode.getElementsByTagName('a'):
+        if boss_link.hasAttribute('data-npc'):
+            wing['boss'].append(int(boss_link.getAttribute('data-npc')))
+
+    wings_list.append(wing)
 
 
 # If needed, retrieve the slots of each item from the english loot HTML page
@@ -186,12 +203,14 @@ found = False
 for raid_entry in json_raids:
     if raid_entry['name'] == raid_name:
         raid_entry['boss'] = boss_list
+        raid_entry['wings'] = wings_list
         found = True
         break
 
 if not(found):
     json_raids.append({
         'name': raid_name,
+        'wings': wings_list,
         'boss': boss_list,
     })
 

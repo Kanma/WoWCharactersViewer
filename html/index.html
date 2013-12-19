@@ -490,7 +490,7 @@
                         {
                             var span = document.createElement('span');
                             span.className = 'level';
-                            span.textContent = '(+' + (loot_table[i].level - spec.items[slot].level) + ')';
+                            span.textContent = '(+' + (loot_table[i].level - (spec.items[slot].level - spec.items[slot].upgrade.itemLevelIncrement)) + ')';
                             li.appendChild(span);
                         }
 

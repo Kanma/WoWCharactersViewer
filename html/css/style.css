@@ -242,11 +242,18 @@ table.raid-updates td.count a
 
 
 table.equipment td span.level,
+table.raid-updates td span.level,
 table.raid-updates-details td span.level
 {
     font-style: italic;
     color: #AAAAAA;
     margin-right: 6px;
+}
+
+
+table.raid-updates td span.level
+{
+    margin-left: 6px;
 }
 
 

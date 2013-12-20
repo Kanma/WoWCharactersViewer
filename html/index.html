@@ -453,17 +453,25 @@
 
         function processRaidUpdates(data, table_id)
         {
-            function _nb_upgrades(loot_table, spec)
+            function _nb_upgrades(loot_table, spec, infos)
             {
-                var nb_upgrades = 0;
-
                 for (var i = 0; i < loot_table.length; ++i)
                 {
                     if (loot_table[i].spec == spec)
-                        ++nb_upgrades;
-                }
+                    {
+                        ++infos.nb_upgrades;
 
-                return nb_upgrades;
+                        if (infos.ilvl_upgrades[loot_table[i].slot] === undefined)
+                        {
+                            infos.ilvl_upgrades[loot_table[i].slot] = loot_table[i].level;
+                        }
+                        else
+                        {
+                            infos.ilvl_upgrades[loot_table[i].slot] = Math.max(infos.ilvl_upgrades[loot_table[i].slot],
+                                                                               loot_table[i].level);
+                        }
+                    }
+                }
             }
 
 
@@ -490,7 +498,12 @@
                         {
                             var span = document.createElement('span');
                             span.className = 'level';
-                            span.textContent = '(+' + (loot_table[i].level - (spec.items[slot].level - spec.items[slot].upgrade.itemLevelIncrement)) + ')';
+
+                            if (spec.items[slot].upgrade.itemLevelIncrement)
+                                span.textContent = '(+' + (loot_table[i].level - (spec.items[slot].level - spec.items[slot].upgrade.itemLevelIncrement)) + ')';
+                            else
+                                span.textContent = '(+' + (loot_table[i].level - spec.items[slot].level) + ')';
+
                             li.appendChild(span);
                         }
 
@@ -508,7 +521,7 @@
             }
 
 
-            function _add_cell(row, nb, raid, mode, spec, character)
+            function _add_cell(row, infos, raid, mode, spec, character)
             {
                 var td = document.createElement('td');
                 td.className = 'count';
@@ -516,8 +529,58 @@
 
                 var a = document.createElement('a');
                 a.href = '#';
-                a.textContent = '' + nb;
+                a.textContent = '' + infos.nb_upgrades;
                 td.appendChild(a);
+
+                var base_ilevel = 0;
+                var modified_equipment_levels = {};
+                var slots = Object.keys(spec.items);
+                for (var i = 0; i < slots.length; ++i)
+                {
+                    if (spec.items[slots[i]])
+                    {
+                        var level = spec.items[slots[i]].level;
+
+                        if (spec.items[slots[i]].upgrade.itemLevelIncrement)
+                             level -= spec.items[slots[i]].upgrade.itemLevelIncrement;
+
+                        base_ilevel += level;
+                        modified_equipment_levels[slots[i]] = level;
+                    }
+                }
+
+                base_ilevel = base_ilevel / Object.keys(modified_equipment_levels).length;
+
+                var slots = Object.keys(infos.ilvl_upgrades);
+                for (var i = 0; i < slots.length; ++i)
+                {
+                    if (slots[i] == 'consumable')
+                        continue;
+
+                    modified_equipment_levels[slots[i]] = infos.ilvl_upgrades[slots[i]];
+
+                    if (slots[i] == 'trinket1')
+                        modified_equipment_levels['trinket2'] = infos.ilvl_upgrades[slots[i]];
+
+                    if (slots[i] == 'finger1')
+                        modified_equipment_levels['finger2'] = infos.ilvl_upgrades[slots[i]];
+                }
+
+                var modified_ilevel = 0;
+                slots = Object.keys(modified_equipment_levels);
+                for (var i = 0; i < slots.length; ++i)
+                    modified_ilevel += modified_equipment_levels[slots[i]];
+
+                modified_ilevel = modified_ilevel / slots.length;
+
+                if (modified_ilevel - base_ilevel > 0)
+                {
+                    var span = document.createElement('span');
+                    span.className = 'level';
+                    span.textContent = '(+' + Number(modified_ilevel - base_ilevel).toFixed(0) + ')';
+                    td.appendChild(span);
+                }
+
 
                 $(a).click(function()
                 {
@@ -764,8 +827,16 @@
                     {
                         var nb_lfr = [];
                         var nb_flex = [];
-                        var nb_normal = 0;
-                        var nb_heroic = 0;
+
+                        var nb_normal = {
+                            nb_upgrades: 0,
+                            ilvl_upgrades: {},
+                        };
+
+                        var nb_heroic = {
+                            nb_upgrades: 0,
+                            ilvl_upgrades: {},
+                        };
 
                         for (var l = 0; l < data.raids[k].wings.length; ++l)
                         {
@@ -773,17 +844,24 @@
 
                             var raid_upgrade_infos = _get_raid_upgrade_infos(character, data.raids[k].name, boss_ids);
 
-                            nb_lfr[l] = 0;
-                            nb_flex[l] = 0;
+                            nb_lfr[l] = {
+                                nb_upgrades: 0,
+                                ilvl_upgrades: {},
+                            };
+
+                            nb_flex[l] = {
+                                nb_upgrades: 0,
+                                ilvl_upgrades: {},
+                            };
 
                             for (var m = 0; m < raid_upgrade_infos.length; ++m)
                             {
                                 var boss_infos = raid_upgrade_infos[m];
 
-                                nb_lfr[l]  += _nb_upgrades(boss_infos.loot_tables.lfr, spec.name);
-                                nb_flex[l] += _nb_upgrades(boss_infos.loot_tables.flex, spec.name);
-                                nb_normal  += _nb_upgrades(boss_infos.loot_tables.normal, spec.name);
-                                nb_heroic  += _nb_upgrades(boss_infos.loot_tables.heroic, spec.name);
+                                _nb_upgrades(boss_infos.loot_tables.lfr, spec.name, nb_lfr[l]);
+                                _nb_upgrades(boss_infos.loot_tables.flex, spec.name, nb_flex[l]);
+                                _nb_upgrades(boss_infos.loot_tables.normal, spec.name, nb_normal);
+                                _nb_upgrades(boss_infos.loot_tables.heroic, spec.name, nb_heroic);
                             }
                         }
 

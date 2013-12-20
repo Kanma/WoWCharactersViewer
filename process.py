@@ -355,22 +355,48 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
 
                         slots = []
                         if json_item_infos['slot'] == 'trinket':
-                            item = json_spec_ref['items']['trinket1']
-                            if (item is None) or (json_item_infos['level'] > item_level(item)):
-                                slots.append('trinket1')
+                            item1 = json_spec_ref['items']['trinket1']
+                            item2 = json_spec_ref['items']['trinket2']
+
+                            if item1 is None:
+                                if item2 is None:
+                                    slots.append('trinket1')
+                                elif item2['id'] != json_item_infos['id']:
+                                    slots.append('trinket1')
+
                             else:
-                                item = json_spec_ref['items']['trinket2']
-                                if (item is None) or (json_item_infos['level'] > item_level(item)):
-                                    slots.append('trinket2')
+                                if item2 is None:
+                                    if item2['id'] != json_item_infos['id']:
+                                        slots.append('trinket2')
+                                elif (item1['id'] != json_item_infos['id']) and (item2['id'] != json_item_infos['id']):
+                                    if item_level(item2) > item_level(item1):
+                                        if json_item_infos['level'] > item_level(item1):
+                                            slots.append('trinket1')
+                                    else:
+                                        if json_item_infos['level'] > item_level(item2):
+                                            slots.append('trinket2')
 
                         elif json_item_infos['slot'] == 'finger':
-                            item = json_spec_ref['items']['finger1']
-                            if (item is None) or (json_item_infos['level'] > item_level(item)):
-                                slots.append('finger1')
+                            item1 = json_spec_ref['items']['finger1']
+                            item2 = json_spec_ref['items']['finger2']
+
+                            if item1 is None:
+                                if item2 is None:
+                                    slots.append('finger1')
+                                elif item2['id'] != json_item_infos['id']:
+                                    slots.append('finger1')
+
                             else:
-                                item = json_spec_ref['items']['finger2']
-                                if (item is None) or (json_item_infos['level'] > item_level(item)):
-                                    slots.append('finger2')
+                                if item2 is None:
+                                    if item2['id'] != json_item_infos['id']:
+                                        slots.append('finger2')
+                                elif (item1['id'] != json_item_infos['id']) and (item2['id'] != json_item_infos['id']):
+                                    if item_level(item2) > item_level(item1):
+                                        if json_item_infos['level'] > item_level(item1):
+                                            slots.append('finger1')
+                                    else:
+                                        if json_item_infos['level'] > item_level(item2):
+                                            slots.append('finger2')
 
                         elif json_item_infos['slot'] == 'consumable':
                             slots.append('consumable')

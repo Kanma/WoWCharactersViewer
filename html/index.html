@@ -356,16 +356,25 @@
                         {
                             var li = document.createElement('li');
                             li.className = 'enchant';
-                            li.textContent = spec.modifications[slot].enchant;
                             ul.appendChild(li);
-                        }
 
-                        if (spec.modifications[slot].reforge !== null)
-                        {
-                            var li = document.createElement('li');
-                            li.className = 'reforge';
-                            li.textContent = spec.modifications[slot].reforge;
-                            ul.appendChild(li);
+                            var enchant = data.items['' + spec.modifications[slot].enchant];
+                            if (enchant)
+                            {
+                                var img = document.createElement('img');
+                                img.src = "http://eu.media.blizzard.com/wow/icons/18/" + enchant.icon + '.jpg';
+                                li.appendChild(img);
+
+                                var a = document.createElement('a');
+                                a.href = 'http://' + data.locale + '.wowhead.com/item=' + enchant.id;
+                                a.textContent = enchant.name;
+                                a.style.color = '#44AA44';
+                                li.appendChild(a);
+                            }
+                            else
+                            {
+                                li.textContent = 'Unknown (' + spec.modifications[slot].enchant + ')';
+                            }
                         }
                     }
                 }

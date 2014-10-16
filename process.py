@@ -19,7 +19,6 @@ def item2json(item):
         'icon': item.get_icon_url(size='small'),
         'random_enchant': item.random_enchant,
         'enchant': item.enchant,
-        'reforge': item.reforge,
         'extra_socket': item.extra_socket,
         'gems': item.gems.values(),
         'set': item.set,
@@ -50,24 +49,145 @@ def item_level(item):
 
 
 
+def decode_amr_data(data):
+    data = data.split('$')
+
+    parts = data[1].split(';')
+
+    items = {}
+
+    prevItemId = 0
+    prevGemId = 0
+    prevEnchantId = 0
+    prevUpgradeId = 0
+    prevBonusId = 0
+
+    for i in xrange(14, len(parts)):
+        item_string = parts[i]
+        if item_string in ['', '_']:
+            continue
+
+        item_info = {
+            'id': None,
+            'suffix': None,
+            'duplicate': None,
+            'slot': i - 14,
+            'upgrade': None,
+            'enchant': None,
+            'gems': [0, 0, 0],
+            'socket_colors': [None, None, None],
+            'bonus': [],
+        }
+
+        token = ''
+        prop = 'i'
+
+        j = 0
+        while j <= len(item_string):
+            if j < len(item_string):
+                c = item_string[j]
+                if c in ['-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']:
+                    token += c
+                    j += 1
+                    continue
+
+            val = int(token)
+            if prop == 'i':
+                val += prevItemId
+                prevItemId = val
+                item_info['id'] = val
+            elif prop == 'u':
+                val += prevUpgradeId
+                prevUpgradeId = val
+                item_info['upgrade'] = val
+            elif prop == 'd':
+                item_info['duplicate'] = val
+            elif prop == 'f':
+                item_info['suffix'] = val
+            elif prop == 'b':
+                val += prevBonusId
+                prevBonusId = val
+                item_info['bonus'].append(val)
+            elif prop == 'x':
+                val += prevGemId
+                prevGemId = val
+                item_info['gems'][0] = val
+            elif prop == 'y':
+                val += prevGemId
+                prevGemId = val
+                item_info['gems'][1] = val
+            elif prop == 'z':
+                val += prevGemId
+                prevGemId = val
+                item_info['gems'][2] = val
+            elif prop == 'e':
+                val += prevEnchantId
+                prevEnchantId = val
+                item_info['enchant'] = val
+            elif prop == 'c':
+                for k in xrange(len(token)):
+                    item_info['socket_colors'][k] = int(token[k])
+
+            token = ''
+
+            if j < len(item_string):
+                prop = c
+
+            j += 1
+
+        items[item_info['id']] = item_info
+
+    parts = data[2].split('@')
+
+    gems = {}
+    enchants = {}
+
+    for i in xrange(len(parts)):
+        info_parts = parts[i].split('\\\\')
+
+        if info_parts[0] == 'g':
+            gem_infos = {
+                'id': int(info_parts[2]),
+                'enchant_id': int(info_parts[1]),
+                'identical_gems': ( map(lambda x: int(x), info_parts[3].split(',')) if info_parts[3] != '' else None ),
+                'text': info_parts[4].replace('_', ''),
+                'identical_ids': ( map(lambda x: int(x), info_parts[5].split(',')) if info_parts[5] != '' else None ),
+            }
+
+            gems[gem_infos['enchant_id']] = gem_infos
+
+        elif info_parts[0] == 'e':
+            enchant_infos = {
+                'id': int(info_parts[1]),
+                'item_id': int(info_parts[2]),
+                'spell_id': int(info_parts[3]),
+                'text': info_parts[4].replace('_', ''),
+                'materials': dict(map(lambda x: (int(x[0]), int(x[1])), map(lambda x: x.split('='), info_parts[5].split(',')))),
+            }
+
+            enchants[enchant_infos['id']] = enchant_infos
+
+    return (items, gems, enchants)
+
+
+
 AMR_SLOTS_ID = [
+    'main_hand',
+    'off_hand',
     'head',
     'neck',
     'shoulder',
-    None,
+    'back',
     'chest',
+    'wrist',
+    'hands',
     'waist',
     'legs',
     'feet',
-    'wrist',
-    'hands',
     'finger1',
     'finger2',
     'trinket1',
     'trinket2',
-    'back',
-    'main_hand',
-    'off_hand',
 ]
 
 
@@ -150,34 +270,6 @@ except:
     print 'Failed to load the settings file, reason:\n' + traceback.format_exc()
     sys.exit(-1)
 
-
-
-# Import the list of enchantments (if needed)
-if wtf_path is not None:
-    file = open(os.path.join(script_path, 'data/enchants.txt'), 'r')
-    lines = filter(lambda x: len(x) > 0, file.readlines())
-    file.close()
-
-    for line in lines:
-        parts = line.strip().split(',')
-
-        id = parts[0]
-        effect = ','.join(parts[1:])
-
-        if (id != '') and (effect != ''):
-            ENCHANTS[id.replace('"', '')] = effect.replace('"', '')
-
-
-# Import the list of reforges (if needed)
-if wtf_path is not None:
-    file = open(os.path.join(script_path, 'data/reforges.txt'), 'r')
-    lines = filter(lambda x: len(x) > 0, file.readlines())
-    file.close()
-
-    for line in lines:
-        (id, src, dst) = line.strip().split(',')
-        if (id != '') and (src != '') and (dst != ''):
-            REFORGES[id] = '%s -> %s' % (src, dst)
 
 
 # Import the data file (if one exist)
@@ -441,73 +533,74 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
 
             json_data['amr'] = True
 
-            import_data = filter(lambda x: x.startswith('AmrImportString = '), lines)
-            if len(import_data) == 1:
-                import_data = import_data[0].strip()[19:-1]
+            import_data = filter(lambda x: x.startswith('\t["LastCharacterImport"] = '), lines)
+            if (len(import_data) == 1) and (len(import_data[0].strip()[27:-2]) > 0):
+                import_data = import_data[0].strip()[27:-2]
 
                 json_spec['amr_import_string'] = import_data
 
-                parsed_items = filter(lambda x: x.startswith('item='), import_data.split(';'))
-                for item in parsed_items:
-                    parts = item.split(':')
-                    slot = int(parts[0][5:])
-                    item_id = int(parts[1])
-                    gems = map(lambda x: int(x), parts[6].split(','))
-                    enchant = int(parts[7])
-                    reforge = int(parts[8])
+                (amr_items, amr_gems, amr_enchants) = decode_amr_data(import_data)
 
-                    if (len(gems) == 1) and (gems[0] == 0):
-                        gems = []
+                for (item_id, item_infos) in amr_items.items():
 
-                    if enchant == 0:
-                        enchant = None
+                    item = None
+                    for slot_name in AMR_SLOTS_ID:
+                        item = getattr(character.equipment, slot_name)
+                        if (item is not None) and (item_id == item.id):
+                            break
+                        else:
+                            item = None
 
-                    if reforge == 0:
-                        reforge = None
-
-                    item = getattr(character.equipment, AMR_SLOTS_ID[slot])
                     if item is not None:
                         if item_id != item.id:
+                            print item_id, item.id
                             json_spec['valid_modifications'] = False
                             break
 
                         modifs = {
-                            'gems': [None] * len(gems),
+                            'gems': [None] * len(item_infos['gems']),
                             'enchant': None,
-                            'reforge': None,
                         }
 
-                        for index, gem in enumerate(gems):
-                            if (gem != item.gems[index]) and (gem != 0):
-                                if not(json_data['items']).has_key(str(gem)):
-                                    print "    Retrieving gem #%d..." % gem
+                        for index, gem in enumerate(item_infos['gems']):
+                            if gem == 0:
+                                continue
+
+                            gem_id = amr_gems[gem]['id']
+
+                            if gem_id != item.gems[index]:
+                                if not(json_data['items']).has_key(str(gem_id)):
+                                    print "    Retrieving gem #%d..." % gem_id
                                     connection = Connection()
-                                    json_gem = connection.get_item(region, gem)
+                                    json_gem = connection.get_item(region, gem_id)
                                     if json_gem is not None:
-                                        json_data['items'][str(gem)] = json_gem
+                                        json_data['items'][str(gem_id)] = json_gem
                                         print "        %s" % json_gem['name'].encode('utf-8')
                                     else:
-                                        json_data['items'][str(gem)] = None
+                                        json_data['items'][str(gem_id)] = None
                                         print "        FAILED"
 
-                                modifs['gems'][index] = gem
+                                modifs['gems'][index] = gem_id
 
-                        if enchant != item.enchant:
-                            try:
-                                modifs['enchant'] = ENCHANTS[str(enchant)]
-                            except:
-                                modifs['enchant'] = 'Unknown enchant (%s)' % str(enchant)
+                        if (item_infos['enchant'] is not None) and (item_infos['enchant'] != item.enchant):
+                            enchant_id = amr_enchants[item_infos['enchant']]['item_id']
 
-                        if (reforge != item.reforge) and (reforge != 0):
-                            try:
-                                if reforge is None:
-                                    modifs['reforge'] = 'Remove reforge'
+                            if not(json_data['items']).has_key(str(enchant_id)):
+                                print "    Retrieving enchant #%d..." % enchant_id
+                                connection = Connection()
+                                json_enchant = connection.get_item(region, enchant_id)
+                                if json_enchant is not None:
+                                    json_data['items'][str(enchant_id)] = json_enchant
+                                    print "        %s" % json_enchant['name'].encode('utf-8')
                                 else:
-                                    modifs['reforge'] = REFORGES[str(reforge)]
-                            except:
-                                modifs['reforge'] = 'Unknown reforge (%s)' % str(reforge)
+                                    json_data['items'][str(enchant_id)] = None
+                                    print "        FAILED"
 
-                        json_spec['modifications'][AMR_SLOTS_ID[slot]] = modifs
+                            modifs['enchant'] = enchant_id
+
+                        json_spec['modifications'][slot_name] = modifs
+            else:
+                json_spec['valid_modifications'] = False
 
 
 # Generate the JSON file

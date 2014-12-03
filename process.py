@@ -3,6 +3,7 @@
 import sys
 import os
 import json
+import time
 from tools.utils import load_json_file
 
 
@@ -307,8 +308,14 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
         character = Character(region, server, name,
                               fields=[Character.ITEMS, Character.TALENTS])
     except:
-        print "    FAILED"
-        continue
+        # 2nd try...
+        try:
+            print "Retrieving '%s (%s - %s)' (retry)..." % (name, server, region)
+            character = Character(region, server, name,
+                                  fields=[Character.ITEMS, Character.TALENTS])
+        except:
+            print "    FAILED"
+            continue
 
 
     # Known character or new one?
@@ -603,6 +610,8 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
                 json_spec['valid_modifications'] = False
 
 
+# add a timestamp
+json_data['timestamp'] = time.time()
 # Generate the JSON file
 output_file = open(os.path.join(dest, 'data.json'), 'w')
 output_file.write(json.dumps(json_data, indent=4))

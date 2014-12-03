@@ -308,8 +308,14 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
         character = Character(region, server, name,
                               fields=[Character.ITEMS, Character.TALENTS])
     except:
-        print "    FAILED"
-        continue
+        # 2nd try...
+        try:
+            print "Retrieving '%s (%s - %s)' (retry)..." % (name, server, region)
+            character = Character(region, server, name,
+                                  fields=[Character.ITEMS, Character.TALENTS])
+        except:
+            print "    FAILED"
+            continue
 
 
     # Known character or new one?

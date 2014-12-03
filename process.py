@@ -3,6 +3,7 @@
 import sys
 import os
 import json
+import time
 from tools.utils import load_json_file
 
 
@@ -603,6 +604,8 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
                 json_spec['valid_modifications'] = False
 
 
+# add a timestamp
+json_data['timestamp'] = time.time()
 # Generate the JSON file
 output_file = open(os.path.join(dest, 'data.json'), 'w')
 output_file.write(json.dumps(json_data, indent=4))

@@ -347,7 +347,7 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
 
     else:
         json_character = {
-            'name': character.name,
+            'name': (isinstance(character.name, unicode) and character.name) or character.name.decode('utf-8'),
             'level': character.level,
             'class': character.get_class_name(),
             'max_ilvl': character.equipment.average_item_level,

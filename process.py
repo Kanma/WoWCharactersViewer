@@ -296,14 +296,14 @@ Connection.setup(locale=settings.LOCALE)
 
 # Complete the data
 for (region, server, name, specs) in settings.CHARACTER_NAMES:
+    print ("Retrieving '%s (%s - %s)'..." % (name, server, region)).encode('utf-8')
     try:
-        print "Retrieving '%s (%s - %s)'..." % (name, server, region)
         character = Character(region, server, name,
                               fields=[Character.ITEMS, Character.TALENTS])
     except:
         # 2nd try...
+        print ("Retrieving '%s (%s - %s)'..." % (name, server, region)).encode('utf-8')
         try:
-            print "Retrieving '%s (%s - %s)' (retry)..." % (name, server, region)
             character = Character(region, server, name,
                                   fields=[Character.ITEMS, Character.TALENTS])
         except:

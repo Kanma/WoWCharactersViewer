@@ -16,7 +16,7 @@
             'Monk':         '#558A84',
             'Paladin':      '#F58CBA',
             'Priest':       '#E0E0E0', // original is '#FFFFFF', but white on white...
-            'Rogue':        '#FFd539', // oritinal is '#FFF569', but not great on white...
+            'Rogue':        '#FFd539', // original is '#FFF569', but not great on white...
             'Shaman':       '#0070DE',
             'Warlock':      '#9482C9',
             'Warrior':      '#C79C6E',
@@ -116,13 +116,13 @@
                             span.className += ' full';
                         }
 
-                        if (spec.ilvl < 500)
+                        if (spec.ilvl < 620)
                             span.className += ' common';
-                        else if (spec.ilvl < 510)
+                        else if (spec.ilvl < 630)
                             span.className += ' uncommon';
-                        else if (spec.ilvl < 520)
+                        else if (spec.ilvl < 640)
                             span.className += ' rare';
-                        else if (spec.ilvl < 530)
+                        else if (spec.ilvl < 650)
                             span.className += ' epic';
                         else
                             span.className += ' legendary';

@@ -104,11 +104,11 @@
                     span.className = 'progressbar';
                     $(span).html('&nbsp;');
 
-                    if (spec.ilvl >= 450)
+                    if (spec.ilvl >= 600)
                     {
-                        if (spec.ilvl < 600)
+                        if (spec.ilvl < 700)
                         {
-                            span.style.width = '' + (spec.ilvl - 450) * 2 + 'px';
+                            span.style.width = '' + (spec.ilvl - 600) * 3 + 'px';
                         }
                         else
                         {
@@ -138,9 +138,9 @@
                     span.className = 'progressbar_background';
                     $(span).html('&nbsp;');
 
-                    if (spec.ilvl >= 450)
+                    if (spec.ilvl >= 600)
                     {
-                        span.style.width = '' + (600 - spec.ilvl) * 2 + 'px';
+                        span.style.width = '' + (700 - spec.ilvl) * 3 + 'px';
                     }
                     else
                     {

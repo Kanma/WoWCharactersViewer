@@ -183,23 +183,6 @@
                     else if (spec.items[slot].level > spec.ilvl + 10)
                         span.className += ' above';
 
-                    if (spec.items[slot].upgrade &&
-                        (spec.items[slot].upgrade['current'] < spec.items[slot].upgrade['total']))
-                    {
-                        var img = document.createElement('img');
-                        img.className = 'upgrade';
-                        td.appendChild(img);
-
-                        if (spec.items[slot].level >= data.minimum_ilevel_for_upgrades)
-                            img.src = 'images/up-circular-16.png';
-                        else
-                            img.src = 'images/up-circular-16-gray.png';
-                    }
-                    else
-                    {
-                        span.className += ' no-upgrade';
-                    }
-
                     var img = document.createElement('img');
                     img.src = spec.items[slot].icon;
                     td.appendChild(img);
@@ -214,9 +197,6 @@
 
                     if (spec.items[slot].quality == 'Heirloom')
                         a.rel += '&amp;lvl=' + character.level;
-
-                    if (spec.items[slot].upgrade)
-                        a.rel += '&amp;upgd=' + spec.items[slot].upgrade['current'];
 
                     if (spec.items[slot].random_enchant)
                         a.rel += '&amp;rand=' + spec.items[slot].random_enchant;

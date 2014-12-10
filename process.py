@@ -36,8 +36,6 @@ def validate_json_file(json_data, default):
     if json_data['locale'] != default['locale']:
         return False
 
-    json_data['minimum_ilevel_for_upgrades'] = default['minimum_ilevel_for_upgrades']
-
     return True
 
 
@@ -262,10 +260,6 @@ try:
     if not(hasattr(settings, 'LOCALE')):
         print 'No LOCALE option found in the settings file'
         sys.exit(-1)
-
-    if not(hasattr(settings, 'MINIMUM_ILEVEL_FOR_UPGRADES')):
-        print 'No MINIMUM_ILEVEL_FOR_UPGRADES option found in the settings file'
-        sys.exit(-1)
 except:
     import traceback
     print 'Failed to load the settings file, reason:\n' + traceback.format_exc()
@@ -279,7 +273,6 @@ json_data = load_json_file(os.path.join(dest, 'data.json'),
                                'characters': [],
                                'items': {},
                                'locale': settings.LOCALE,
-                               'minimum_ilevel_for_upgrades': settings.MINIMUM_ILEVEL_FOR_UPGRADES,
                                'raids': None,
                                'amr': False,
                            },

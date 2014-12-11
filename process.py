@@ -603,8 +603,15 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
                 json_spec['valid_modifications'] = False
 
 
-# add a timestamp
+# Add a timestamp
 json_data['timestamp'] = time.time()
+
+
+# Add the update notice (if necessary)
+if hasattr(settings, 'UPDATE_NOTICE_GENERATOR') and (settings.UPDATE_NOTICE_GENERATOR is not None):
+    json_data['update_notice'] = settings.UPDATE_NOTICE_GENERATOR()
+
+
 # Generate the JSON file
 output_file = open(os.path.join(dest, 'data.json'), 'w')
 output_file.write(json.dumps(json_data, indent=4))

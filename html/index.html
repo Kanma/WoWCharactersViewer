@@ -1103,6 +1103,8 @@
         </table>
     </div>
 
+    <p id="update_notice"></p>
+
 
     <script type="text/javascript">
         window.onload = function ()
@@ -1116,6 +1118,9 @@
                 processEquipment(data, 'equipment');
                 processModifications(data, 'modifications');
                 processRaidUpdates(data, 'raid-updates');
+
+                if (data.update_notice)
+                    $('#update_notice').text(data.update_notice);
             });
         }
     </script>

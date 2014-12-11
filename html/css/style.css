@@ -257,12 +257,6 @@ table.raid-updates td span.level
 }
 
 
-table.equipment td span.level.no-upgrade
-{
-    margin-right: 26px;
-}
-
-
 table.equipment td span.level.below
 {
     color: #E00000;
@@ -300,4 +294,12 @@ table.raid-updates-details td ul
 table.raid-updates-details td li
 {
     margin-bottom: 2px;
+}
+
+
+p#update_notice
+{
+    text-align: center;
+    color: #999999;
+    font-style: italic;
 }

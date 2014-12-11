@@ -61,7 +61,7 @@ def decode_amr_data(data):
     prevUpgradeId = 0
     prevBonusId = 0
 
-    for i in xrange(14, len(parts)):
+    for i in xrange(15, len(parts)):
         item_string = parts[i]
         if item_string in ['', '_']:
             continue
@@ -585,7 +585,7 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
                         if (item_infos['enchant'] is not None) and (item_infos['enchant'] != item.enchant):
                             enchant_id = amr_enchants[item_infos['enchant']]['item_id']
 
-                            if not(json_data['items']).has_key(str(enchant_id)):
+                            if (enchant_id > 0) and not(json_data['items']).has_key(str(enchant_id)):
                                 print "    Retrieving enchant #%d..." % enchant_id
                                 connection = Connection()
                                 json_enchant = connection.get_item(region, enchant_id)

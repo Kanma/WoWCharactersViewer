@@ -370,7 +370,8 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
     # Process the active spec
     active_talents = filter(lambda x: x.selected, character.talents)[0]
     if active_talents.name not in specs:
-        print "    Active spec must not be displayed: '%s'" % active_talents.name
+        print "    Active spec must not be displayed: '%s'" % active_talents.name.encode('utf-8')
+
         continue
 
     json_spec = filter(lambda x: x['name'] == active_talents.name, json_character['specs'])[0]

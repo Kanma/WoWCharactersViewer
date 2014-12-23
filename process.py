@@ -280,6 +280,15 @@ json_data = load_json_file(os.path.join(dest, 'data.json'),
                     )
 
 
+# Build a dictionary with the characters
+characters = {}
+for char in json_data['characters']:
+    if char in characters.keys():
+        print 'Duplicate character: %s' % char['name'].encode('utf-8')
+        sys.exit(-1)
+    characters[char['name']] = char
+
+
 # Import the list of raids (if available)
 json_raids = load_json_file(os.path.join(script_path, 'data/raids.json'), None)
 
@@ -312,9 +321,8 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
 
 
     # Known character or new one?
-    json_character = filter(lambda x: x['name'] == name, json_data['characters'])
-    if len(json_character) == 1:
-        json_character = json_character[0]
+    if name in characters.keys():
+        json_character = characters[name]
         json_character['level'] = character.level
         json_character['max_ilvl'] = character.equipment.average_item_level
 
@@ -524,6 +532,9 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
         json_character['raid_upgrades'] = json_upgrades
 
 
+        # Save the new data
+        characters[name] = json_character
+
     # Process AskMrRobot's data
     if wtf_path is not None:
         path = os.path.join(wtf_path, server, name, 'SavedVariables', 'AskMrRobot.lua')
@@ -602,6 +613,13 @@ for (region, server, name, specs) in settings.CHARACTER_NAMES:
                         json_spec['modifications'][slot_name] = modifs
             else:
                 json_spec['valid_modifications'] = False
+
+
+# Put back the characters info in the same order as in the settings
+json_data['characters'] = []
+for (region, server, name, specs) in settings.CHARACTER_NAMES:
+    if name in characters.keys():
+        json_data['characters'].append(characters[name])
 
 
 # Add a timestamp
